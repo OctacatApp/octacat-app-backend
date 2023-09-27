@@ -5,6 +5,7 @@ type AppConfig struct {
 }
 
 type App struct {
+	Name   string
 	Router struct {
 		GQL struct {
 			Port string

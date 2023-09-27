@@ -1,0 +1,13 @@
+{
+	"App": {
+		"Name": "Octacat App Backend",
+		"Router": {
+			"GQL": {
+				"Port": "4000"
+			},
+			"WSS": {
+				"Port": "4000"
+			}
+		}
+	}
+}
