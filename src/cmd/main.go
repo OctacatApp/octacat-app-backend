@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 
+	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/configreader"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/files"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/flags"
@@ -31,6 +32,9 @@ func main() {
 	if err != nil {
 		panic(err)
 	}
+
+	// init and run graphql server
+	gql.InitAndRun(*cfg)
 
 	fmt.Printf("cfg: %v\n", *cfg)
 }
