@@ -1,0 +1,18 @@
+# GraphQL schema example
+#
+# https://gqlgen.com/getting-started/
+
+type User {
+  id: String!
+  name: String!
+  email: String!
+  password: String!
+  profileImage: String!
+  createdAt: String! # dd/MM/yyyy HH:mm:ss
+  createdBy: String!
+  updatedAt: String! # dd/MM/yyyy HH:mm:ss
+  updatedBy: String!
+  deletedAt: String! # dd/MM/yyyy HH:mm:ss
+  deletedBy: String!
+  isDeleted: Boolean!
+}

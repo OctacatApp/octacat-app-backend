@@ -2,19 +2,27 @@
 
 package model
 
-type NewTodo struct {
-	Text   string `json:"text"`
-	UserID string `json:"userId"`
+type AuthMutation struct {
+	Register *User `json:"register"`
 }
 
-type Todo struct {
-	ID   string `json:"id"`
-	Text string `json:"text"`
-	Done bool   `json:"done"`
-	User *User  `json:"user"`
+type RegisterParam struct {
+	Name     string `json:"name"`
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type User struct {
-	ID   string `json:"id"`
-	Name string `json:"name"`
+	ID           string `json:"id"`
+	Name         string `json:"name"`
+	Email        string `json:"email"`
+	Password     string `json:"password"`
+	ProfileImage string `json:"profileImage"`
+	CreatedAt    string `json:"createdAt"`
+	CreatedBy    string `json:"createdBy"`
+	UpdatedAt    string `json:"updatedAt"`
+	UpdatedBy    string `json:"updatedBy"`
+	DeletedAt    string `json:"deletedAt"`
+	DeletedBy    string `json:"deletedBy"`
+	IsDeleted    bool   `json:"isDeleted"`
 }

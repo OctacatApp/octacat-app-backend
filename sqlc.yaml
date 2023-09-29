@@ -9,7 +9,7 @@ sql:
       queries: "./docs/sql/query.sql"
       gen:
         go:
-          package: "domain"
+          package: "psql"
           out: "./src/business/domain/psql"
 
 overrides:

@@ -5,6 +5,7 @@
 package psql
 
 import (
+	"database/sql"
 	"time"
 )
 
@@ -15,23 +16,11 @@ type Chat struct {
 	MessageID  string
 	CreatedAt  time.Time
 	CreatedBy  string
-	UpdatedAt  time.Time
-	UpdatedBy  string
-	DeletedAt  time.Time
-	DeletedBy  string
+	UpdatedAt  sql.NullTime
+	UpdatedBy  sql.NullString
+	DeletedAt  sql.NullTime
+	DeletedBy  sql.NullString
 	IsDeleted  bool
-}
-
-type ChatMessage struct {
-	ID        string
-	Message   string
-	CreatedAt time.Time
-	CreatedBy string
-	UpdatedAt time.Time
-	UpdatedBy string
-	DeletedAt time.Time
-	DeletedBy string
-	IsDeleted bool
 }
 
 type User struct {
@@ -42,9 +31,9 @@ type User struct {
 	ProfileImage string
 	CreatedAt    time.Time
 	CreatedBy    string
-	UpdatedAt    time.Time
-	UpdatedBy    string
-	DeletedAt    time.Time
-	DeletedBy    string
+	UpdatedAt    sql.NullTime
+	UpdatedBy    sql.NullString
+	DeletedAt    sql.NullTime
+	DeletedBy    sql.NullString
 	IsDeleted    bool
 }

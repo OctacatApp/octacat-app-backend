@@ -7,6 +7,7 @@ package psql
 
 import (
 	"context"
+	"database/sql"
 	"time"
 )
 
@@ -133,8 +134,8 @@ type UpdateUserParams struct {
 	Email        string
 	Password     string
 	ProfileImage string
-	UpdatedAt    time.Time
-	UpdatedBy    string
+	UpdatedAt    sql.NullTime
+	UpdatedBy    sql.NullString
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) (User, error) {

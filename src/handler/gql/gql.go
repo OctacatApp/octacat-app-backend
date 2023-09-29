@@ -17,7 +17,9 @@ func InitAndRun(cfg config.AppConfig, uc usecase.Usecase) {
 	srv := handler.NewDefaultServer(
 		server.NewExecutableSchema(
 			server.Config{
-				Resolvers: &Resolver{},
+				Resolvers: &Resolver{
+					Usecase: uc,
+				},
 			},
 		),
 	)

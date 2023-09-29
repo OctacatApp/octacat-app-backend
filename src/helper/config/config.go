@@ -34,7 +34,7 @@ type SQLDB struct {
 	Username string
 	Password string
 	Database string
-	Port     string
+	Port     int64
 	SSL      bool
 }
 
