@@ -1,7 +1,8 @@
 package config
 
 type AppConfig struct {
-	App App
+	App  App
+	SMTP SMTP
 }
 
 type App struct {
@@ -14,4 +15,11 @@ type App struct {
 			Port string
 		}
 	}
+}
+
+type SMTP struct {
+	Host     string
+	Username string
+	Password string
+	Port     int64
 }
