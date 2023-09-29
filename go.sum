@@ -20,6 +20,10 @@ github.com/hashicorp/golang-lru/v2 v2.0.3 h1:kmRrRLlInXvng0SmLxmQpQkpbYAvcXm7NPD
 github.com/hashicorp/golang-lru/v2 v2.0.3/go.mod h1:QeFd9opnmA6QUJc5vARoKUSoFhyfM2/ZepoAG6RGpeM=
 github.com/irdaislakhuafa/go-argon2 v0.0.1 h1:D8DLiknTXzQFqCLc4byEPd16VruKyBCxIvSGv+n7L0Q=
 github.com/irdaislakhuafa/go-argon2 v0.0.1/go.mod h1:1/rG5FNlMU5SutoFMH1w9Px0s03f+uEf3/h66HUSNQs=
+github.com/irdaislakhuafa/go-argon2 v0.0.2 h1:sFDl6erlUjkYssYZdP31/JQabExOunZJcg88ffRd2ho=
+github.com/irdaislakhuafa/go-argon2 v0.0.2/go.mod h1:1/rG5FNlMU5SutoFMH1w9Px0s03f+uEf3/h66HUSNQs=
+github.com/irdaislakhuafa/go-argon2 v0.0.3 h1:H/DqYT+wTzo3nHcCUNRxjOSyb5VcpRC1pAW24GqdIC4=
+github.com/irdaislakhuafa/go-argon2 v0.0.3/go.mod h1:1/rG5FNlMU5SutoFMH1w9Px0s03f+uEf3/h66HUSNQs=
 github.com/lib/pq v1.10.9 h1:YXG7RB+JIjhP29X+OtkiDnYaXQwpS4JEWq7dtCCRUEw=
 github.com/lib/pq v1.10.9/go.mod h1:AlVN5x4E4T544tWzH6hKfbfQvm3HdbOxrmggDNAPY9o=
 github.com/mitchellh/mapstructure v1.5.0 h1:jeMsZIYE/09sWLaz43PL7Gy6RuMjD2eJVyuac5Z2hdY=

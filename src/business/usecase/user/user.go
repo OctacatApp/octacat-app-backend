@@ -68,16 +68,14 @@ func (u *user) Login(ctx context.Context, params psql.User) (tokens.JWTResponse,
 
 	user, err := u.domain.User.GetByEmail(ctx, params.Email)
 	if err != nil {
+		if errors.Is(err, sql.ErrNoRows) {
+			return tokens.JWTResponse{}, errors.Join(errors.New("user with this email not registered"), err)
+		}
 		return tokens.JWTResponse{}, err
 	}
 
-	isMatch, err := argon2.CompareArgon2(params.Password, user.Password)
-	if err != nil {
-		return tokens.JWTResponse{}, err
-	}
-
-	if !isMatch {
-		return tokens.JWTResponse{}, errors.New("password is not match")
+	if _, err := argon2.CompareArgon2(params.Password, user.Password); err != nil {
+		return tokens.JWTResponse{}, errors.Join(errors.New("password is not match"), err)
 	}
 
 	expAt := time.Now().Add(time.Minute * time.Duration(u.cfg.App.JWT.ExpInMinute))

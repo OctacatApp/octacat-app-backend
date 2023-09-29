@@ -6,7 +6,7 @@ require (
 	github.com/99designs/gqlgen v0.17.38
 	github.com/golang-jwt/jwt/v5 v5.0.0
 	github.com/google/uuid v1.3.0
-	github.com/irdaislakhuafa/go-argon2 v0.0.1
+	github.com/irdaislakhuafa/go-argon2 v0.0.3
 	github.com/lib/pq v1.10.9
 	github.com/vektah/gqlparser/v2 v2.5.10
 )
