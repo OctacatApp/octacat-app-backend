@@ -13,7 +13,7 @@ import (
 
 const defaultPort = "8080"
 
-func InitAndRun(cfg config.AppConfig, uc usecase.Usecase) {
+func InitAndRun(cfg *config.AppConfig, uc *usecase.Usecase) {
 	srv := handler.NewDefaultServer(
 		server.NewExecutableSchema(
 			server.Config{

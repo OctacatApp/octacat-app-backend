@@ -37,16 +37,16 @@ func main() {
 	}
 
 	// init psql db
-	psqlDB := connection.NewPostgreSQL(*cfg)
+	psqlDB := connection.NewPostgreSQL(cfg)
 
 	// init domain
 	domain := domain.New(psqlDB)
 
 	// init usecase
-	usecase := usecase.New(*cfg, domain)
+	usecase := usecase.New(cfg, &domain)
 
 	// init and run graphql server
-	gql.InitAndRun(*cfg, usecase)
+	gql.InitAndRun(cfg, &usecase)
 
 	fmt.Printf("cfg: %v\n", *cfg)
 }

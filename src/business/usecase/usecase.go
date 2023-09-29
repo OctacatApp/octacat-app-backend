@@ -10,7 +10,7 @@ type Usecase struct {
 	User user.Interface
 }
 
-func New(cfg config.AppConfig, domain domain.Domain) Usecase {
+func New(cfg *config.AppConfig, domain *domain.Domain) Usecase {
 	result := Usecase{
 		User: user.New(cfg, domain),
 	}

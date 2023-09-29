@@ -18,11 +18,11 @@ type Interface interface {
 }
 
 type user struct {
-	cfg    config.AppConfig
-	domain domain.Domain
+	cfg    *config.AppConfig
+	domain *domain.Domain
 }
 
-func New(cfg config.AppConfig, domain domain.Domain) Interface {
+func New(cfg *config.AppConfig, domain *domain.Domain) Interface {
 	result := &user{
 		cfg:    cfg,
 		domain: domain,
