@@ -27,3 +27,7 @@ $ go run src/cmd/main.go -env local
 ```
 
 the option `-env` will search environment configuration in `etc/cfg/*`
+
+## Deployed App
+
+You can access deployed app [here](https://octacat-app-backend.fly.dev/)

@@ -23,18 +23,6 @@ type Chat struct {
 	IsDeleted  bool
 }
 
-type ChatMessage struct {
-	ID        string
-	Message   string
-	CreatedAt time.Time
-	CreatedBy string
-	UpdatedAt sql.NullTime
-	UpdatedBy sql.NullString
-	DeletedAt sql.NullTime
-	DeletedBy sql.NullString
-	IsDeleted bool
-}
-
 type User struct {
 	ID           string
 	Name         string

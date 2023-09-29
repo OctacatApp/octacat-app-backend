@@ -5,6 +5,7 @@ import (
 
 	"github.com/irdaislakhuafa/octacat-app-backend/src/business/connection"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/business/domain"
+	"github.com/irdaislakhuafa/octacat-app-backend/src/business/generated"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/business/usecase"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/configreader"
@@ -37,16 +38,19 @@ func main() {
 	}
 
 	// init psql db
-	psqlDB := connection.NewPostgreSQL(*cfg)
+	psqlDB := connection.NewPostgreSQL(cfg)
+
+	// init generated code from sqlc
+	gen := generated.New(psqlDB)
 
 	// init domain
-	domain := domain.New(psqlDB)
+	domain := domain.New(cfg, &gen, psqlDB)
 
 	// init usecase
-	usecase := usecase.New(*cfg, domain)
+	usecase := usecase.New(cfg, &domain)
 
 	// init and run graphql server
-	gql.InitAndRun(*cfg, usecase)
+	gql.InitAndRun(cfg, &usecase)
 
 	fmt.Printf("cfg: %v\n", *cfg)
 }
