@@ -7,7 +7,7 @@ package gql
 import (
 	"context"
 
-	"github.com/irdaislakhuafa/octacat-app-backend/src/business/domain/psql"
+	"github.com/irdaislakhuafa/octacat-app-backend/src/business/generated/psql"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/generated/model"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/generated/server"
 )

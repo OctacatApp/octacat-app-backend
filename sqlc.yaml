@@ -11,6 +11,8 @@ sql:
         go:
           package: "psql"
           out: "./src/business/domain/psql"
+      database:
+        uri: "postgresql://postgres:postgres@localhost:5432/octacat_db"
 
 overrides:
     go: null
