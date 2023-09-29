@@ -7,32 +7,27 @@ package gql
 import (
 	"context"
 
-	"github.com/irdaislakhuafa/octacat-app-backend/src/business/generated/psql"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/generated/model"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/generated/server"
+	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/generated/transform"
 )
 
 // Register is the resolver for the register field.
 func (r *authMutationResolver) Register(ctx context.Context, obj *model.AuthMutation, param model.RegisterParam) (*model.User, error) {
 	// TODO: create convertion code
-	result, err := r.Usecase.User.Register(ctx, psql.CreateUserParams{Name: param.Name, Email: param.Email, Password: param.Password})
+	params, err := transform.FromRegisterParams(param)
 	if err != nil {
 		return nil, err
 	}
 
-	response := model.User{
-		ID:           result.ID,
-		Name:         result.Name,
-		Email:        result.Email,
-		Password:     result.Password,
-		ProfileImage: result.ProfileImage,
-		CreatedAt:    result.CreatedAt.Format("02/01/2006 15:04:05"),
-		CreatedBy:    result.CreatedBy,
-		UpdatedAt:    result.UpdatedAt.Time.Format("02/01/2006 15:04:05"),
-		UpdatedBy:    result.UpdatedBy.String,
-		DeletedAt:    result.DeletedAt.Time.Format("02/01/2006 15:04:05"),
-		DeletedBy:    result.DeletedBy.String,
-		IsDeleted:    result.IsDeleted,
+	result, err := r.Usecase.User.Register(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := transform.ToUserModel(result)
+	if err != nil {
+		return nil, err
 	}
 
 	return &response, nil
