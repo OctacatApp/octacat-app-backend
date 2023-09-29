@@ -9,5 +9,11 @@
 				"Port": "8080"
 			}
 		}
+	},
+	"SMTP": {
+		"Host": "sandbox.smtp.mailtrap.io",
+		"Username": "aaead9b02042be",
+		"Password": "ae70029e982dc2",
+		"Port": 2525
 	}
 }
