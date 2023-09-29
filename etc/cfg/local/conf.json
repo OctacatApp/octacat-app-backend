@@ -8,6 +8,9 @@
 			"WSS": {
 				"Port": "8080"
 			}
+		},
+		"Default": {
+			"Me": "system"
 		}
 	},
 	"SMTP": {

@@ -16,6 +16,9 @@ type App struct {
 			Port string
 		}
 	}
+	Default struct {
+		Me string
+	}
 }
 
 type SMTP struct {

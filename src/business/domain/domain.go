@@ -3,12 +3,12 @@ package domain
 import "github.com/irdaislakhuafa/octacat-app-backend/src/business/domain/psql"
 
 type Domain struct {
-	psql *psql.Queries
+	PSQL *psql.Queries
 }
 
 func New(psqlDB psql.DBTX) Domain {
 	result := Domain{
-		psql: psql.New(psqlDB),
+		PSQL: psql.New(psqlDB),
 	}
 	return result
 }
