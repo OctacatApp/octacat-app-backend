@@ -13,6 +13,11 @@ var (
 	ErrClaimsTypeNotEquals  = errors.New("claims type is not equals")
 )
 
+type JWTResponse struct {
+	Message string `json:"message"`
+	Token   string `json:"token"`
+}
+
 type Claims struct {
 	UserID string
 	jwt.RegisteredClaims

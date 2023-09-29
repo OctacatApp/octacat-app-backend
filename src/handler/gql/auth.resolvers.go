@@ -6,6 +6,7 @@ package gql
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/generated/model"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/generated/server"
@@ -31,6 +32,11 @@ func (r *authMutationResolver) Register(ctx context.Context, obj *model.AuthMuta
 	}
 
 	return &response, nil
+}
+
+// Login is the resolver for the login field.
+func (r *authMutationResolver) Login(ctx context.Context, obj *model.AuthMutation, param model.LoginParam) (*model.JWTResponse, error) {
+	panic(fmt.Errorf("not implemented: Login - login"))
 }
 
 // AuthMutation returns server.AuthMutationResolver implementation.

@@ -19,6 +19,10 @@ type App struct {
 	Default struct {
 		Me string
 	}
+	JWT struct {
+		Secret      string
+		ExpInMinute int64
+	}
 }
 
 type SMTP struct {

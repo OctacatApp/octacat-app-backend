@@ -46,7 +46,13 @@ type DirectiveRoot struct {
 
 type ComplexityRoot struct {
 	AuthMutation struct {
+		Login    func(childComplexity int, param model.LoginParam) int
 		Register func(childComplexity int, param model.RegisterParam) int
+	}
+
+	JWTResponse struct {
+		Message func(childComplexity int) int
+		Token   func(childComplexity int) int
 	}
 
 	Mutation struct {
@@ -75,6 +81,7 @@ type ComplexityRoot struct {
 
 type AuthMutationResolver interface {
 	Register(ctx context.Context, obj *model.AuthMutation, param model.RegisterParam) (*model.User, error)
+	Login(ctx context.Context, obj *model.AuthMutation, param model.LoginParam) (*model.JWTResponse, error)
 }
 type MutationResolver interface {
 	Auth(ctx context.Context) (*model.AuthMutation, error)
@@ -98,6 +105,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 	_ = ec
 	switch typeName + "." + field {
 
+	case "AuthMutation.login":
+		if e.complexity.AuthMutation.Login == nil {
+			break
+		}
+
+		args, err := ec.field_AuthMutation_login_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.AuthMutation.Login(childComplexity, args["param"].(model.LoginParam)), true
+
 	case "AuthMutation.register":
 		if e.complexity.AuthMutation.Register == nil {
 			break
@@ -109,6 +128,20 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.AuthMutation.Register(childComplexity, args["param"].(model.RegisterParam)), true
+
+	case "JWTResponse.message":
+		if e.complexity.JWTResponse.Message == nil {
+			break
+		}
+
+		return e.complexity.JWTResponse.Message(childComplexity), true
+
+	case "JWTResponse.token":
+		if e.complexity.JWTResponse.Token == nil {
+			break
+		}
+
+		return e.complexity.JWTResponse.Token(childComplexity), true
 
 	case "Mutation.auth":
 		if e.complexity.Mutation.Auth == nil {
@@ -216,6 +249,7 @@ func (e *executableSchema) Exec(ctx context.Context) graphql.ResponseHandler {
 	rc := graphql.GetOperationContext(ctx)
 	ec := executionContext{rc, e, 0, 0, make(chan graphql.DeferredResult)}
 	inputUnmarshalMap := graphql.BuildUnmarshalerMap(
+		ec.unmarshalInputLoginParam,
 		ec.unmarshalInputRegisterParam,
 	)
 	first := true
@@ -316,12 +350,23 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 var sources = []*ast.Source{
 	{Name: "../../auth.graphqls", Input: `type AuthMutation {
   register(param: RegisterParam!): User! @goField(forceResolver: true)
+  login(param: LoginParam!): JWTResponse! @goField(forceResolver: true)
 }
 
 input RegisterParam {
   name: String!
   email: String!
   password: String!
+}
+
+input LoginParam {
+  email: String!
+  password: String!
+}
+
+type JWTResponse {
+  message: String!
+  token: String!
 }
 `, BuiltIn: false},
 	{Name: "../../directive.graphqls", Input: `# Docs https://gqlgen.com/config/
@@ -364,6 +409,21 @@ var parsedSchema = gqlparser.MustLoadSchema(sources...)
 // endregion ************************** generated!.gotpl **************************
 
 // region    ***************************** args.gotpl *****************************
+
+func (ec *executionContext) field_AuthMutation_login_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 model.LoginParam
+	if tmp, ok := rawArgs["param"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("param"))
+		arg0, err = ec.unmarshalNLoginParam2githubᚗcomᚋirdaislakhuafaᚋoctacatᚑappᚑbackendᚋsrcᚋhandlerᚋgqlᚋgeneratedᚋmodelᚐLoginParam(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["param"] = arg0
+	return args, nil
+}
 
 func (ec *executionContext) field_AuthMutation_register_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
 	var err error
@@ -514,6 +574,155 @@ func (ec *executionContext) fieldContext_AuthMutation_register(ctx context.Conte
 	return fc, nil
 }
 
+func (ec *executionContext) _AuthMutation_login(ctx context.Context, field graphql.CollectedField, obj *model.AuthMutation) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_AuthMutation_login(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return ec.resolvers.AuthMutation().Login(rctx, obj, fc.Args["param"].(model.LoginParam))
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.JWTResponse)
+	fc.Result = res
+	return ec.marshalNJWTResponse2ᚖgithubᚗcomᚋirdaislakhuafaᚋoctacatᚑappᚑbackendᚋsrcᚋhandlerᚋgqlᚋgeneratedᚋmodelᚐJWTResponse(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_AuthMutation_login(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "AuthMutation",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "message":
+				return ec.fieldContext_JWTResponse_message(ctx, field)
+			case "token":
+				return ec.fieldContext_JWTResponse_token(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type JWTResponse", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_AuthMutation_login_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JWTResponse_message(ctx context.Context, field graphql.CollectedField, obj *model.JWTResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JWTResponse_message(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Message, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JWTResponse_message(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JWTResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _JWTResponse_token(ctx context.Context, field graphql.CollectedField, obj *model.JWTResponse) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_JWTResponse_token(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		ctx = rctx // use context from middleware stack in children
+		return obj.Token, nil
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(string)
+	fc.Result = res
+	return ec.marshalNString2string(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_JWTResponse_token(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "JWTResponse",
+		Field:      field,
+		IsMethod:   false,
+		IsResolver: false,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			return nil, errors.New("field of type String does not have child fields")
+		},
+	}
+	return fc, nil
+}
+
 func (ec *executionContext) _Mutation_auth(ctx context.Context, field graphql.CollectedField) (ret graphql.Marshaler) {
 	fc, err := ec.fieldContext_Mutation_auth(ctx, field)
 	if err != nil {
@@ -555,6 +764,8 @@ func (ec *executionContext) fieldContext_Mutation_auth(ctx context.Context, fiel
 			switch field.Name {
 			case "register":
 				return ec.fieldContext_AuthMutation_register(ctx, field)
+			case "login":
+				return ec.fieldContext_AuthMutation_login(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type AuthMutation", field.Name)
 		},
@@ -3036,6 +3247,44 @@ func (ec *executionContext) fieldContext___Type_specifiedByURL(ctx context.Conte
 
 // region    **************************** input.gotpl *****************************
 
+func (ec *executionContext) unmarshalInputLoginParam(ctx context.Context, obj interface{}) (model.LoginParam, error) {
+	var it model.LoginParam
+	asMap := map[string]interface{}{}
+	for k, v := range obj.(map[string]interface{}) {
+		asMap[k] = v
+	}
+
+	fieldsInOrder := [...]string{"email", "password"}
+	for _, k := range fieldsInOrder {
+		v, ok := asMap[k]
+		if !ok {
+			continue
+		}
+		switch k {
+		case "email":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Email = data
+		case "password":
+			var err error
+
+			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
+			data, err := ec.unmarshalNString2string(ctx, v)
+			if err != nil {
+				return it, err
+			}
+			it.Password = data
+		}
+	}
+
+	return it, nil
+}
+
 func (ec *executionContext) unmarshalInputRegisterParam(ctx context.Context, obj interface{}) (model.RegisterParam, error) {
 	var it model.RegisterParam
 	asMap := map[string]interface{}{}
@@ -3138,6 +3387,86 @@ func (ec *executionContext) _AuthMutation(ctx context.Context, sel ast.Selection
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "login":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._AuthMutation_login(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		default:
+			panic("unknown field " + strconv.Quote(field.Name))
+		}
+	}
+	out.Dispatch(ctx)
+	if out.Invalids > 0 {
+		return graphql.Null
+	}
+
+	atomic.AddInt32(&ec.deferred, int32(len(deferred)))
+
+	for label, dfs := range deferred {
+		ec.processDeferredGroup(graphql.DeferredGroup{
+			Label:    label,
+			Path:     graphql.GetPath(ctx),
+			FieldSet: dfs,
+			Context:  ctx,
+		})
+	}
+
+	return out
+}
+
+var jWTResponseImplementors = []string{"JWTResponse"}
+
+func (ec *executionContext) _JWTResponse(ctx context.Context, sel ast.SelectionSet, obj *model.JWTResponse) graphql.Marshaler {
+	fields := graphql.CollectFields(ec.OperationContext, sel, jWTResponseImplementors)
+
+	out := graphql.NewFieldSet(fields)
+	deferred := make(map[string]*graphql.FieldSet)
+	for i, field := range fields {
+		switch field.Name {
+		case "__typename":
+			out.Values[i] = graphql.MarshalString("JWTResponse")
+		case "message":
+			out.Values[i] = ec._JWTResponse_message(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
+		case "token":
+			out.Values[i] = ec._JWTResponse_token(ctx, field, obj)
+			if out.Values[i] == graphql.Null {
+				out.Invalids++
+			}
 		default:
 			panic("unknown field " + strconv.Quote(field.Name))
 		}
@@ -3729,6 +4058,25 @@ func (ec *executionContext) marshalNBoolean2bool(ctx context.Context, sel ast.Se
 		}
 	}
 	return res
+}
+
+func (ec *executionContext) marshalNJWTResponse2githubᚗcomᚋirdaislakhuafaᚋoctacatᚑappᚑbackendᚋsrcᚋhandlerᚋgqlᚋgeneratedᚋmodelᚐJWTResponse(ctx context.Context, sel ast.SelectionSet, v model.JWTResponse) graphql.Marshaler {
+	return ec._JWTResponse(ctx, sel, &v)
+}
+
+func (ec *executionContext) marshalNJWTResponse2ᚖgithubᚗcomᚋirdaislakhuafaᚋoctacatᚑappᚑbackendᚋsrcᚋhandlerᚋgqlᚋgeneratedᚋmodelᚐJWTResponse(ctx context.Context, sel ast.SelectionSet, v *model.JWTResponse) graphql.Marshaler {
+	if v == nil {
+		if !graphql.HasFieldError(ctx, graphql.GetFieldContext(ctx)) {
+			ec.Errorf(ctx, "the requested element is null which the schema does not allow")
+		}
+		return graphql.Null
+	}
+	return ec._JWTResponse(ctx, sel, v)
+}
+
+func (ec *executionContext) unmarshalNLoginParam2githubᚗcomᚋirdaislakhuafaᚋoctacatᚑappᚑbackendᚋsrcᚋhandlerᚋgqlᚋgeneratedᚋmodelᚐLoginParam(ctx context.Context, v interface{}) (model.LoginParam, error) {
+	res, err := ec.unmarshalInputLoginParam(ctx, v)
+	return res, graphql.ErrorOnPath(ctx, err)
 }
 
 func (ec *executionContext) unmarshalNRegisterParam2githubᚗcomᚋirdaislakhuafaᚋoctacatᚑappᚑbackendᚋsrcᚋhandlerᚋgqlᚋgeneratedᚋmodelᚐRegisterParam(ctx context.Context, v interface{}) (model.RegisterParam, error) {
