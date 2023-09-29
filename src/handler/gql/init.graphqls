@@ -1,0 +1,7 @@
+type Mutation {
+  auth: AuthMutation! @goField(forceResolver: true)
+}
+
+type Query {
+  hello: String!
+}

@@ -1,8 +1,9 @@
 package config
 
 type AppConfig struct {
-	App  App
-	SMTP SMTP
+	App        App
+	SMTP       SMTP
+	DataSource DataSource
 }
 
 type App struct {
@@ -15,6 +16,9 @@ type App struct {
 			Port string
 		}
 	}
+	Default struct {
+		Me string
+	}
 }
 
 type SMTP struct {
@@ -22,4 +26,18 @@ type SMTP struct {
 	Username string
 	Password string
 	Port     int64
+}
+
+type SQLDB struct {
+	Driver   string
+	Host     string
+	Username string
+	Password string
+	Database string
+	Port     int64
+	SSL      bool
+}
+
+type DataSource struct {
+	PostgreSQL SQLDB
 }

@@ -1,0 +1,9 @@
+type AuthMutation {
+  register(param: RegisterParam!): User! @goField(forceResolver: true)
+}
+
+input RegisterParam {
+  name: String!
+  email: String!
+  password: String!
+}

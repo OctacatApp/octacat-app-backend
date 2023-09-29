@@ -12,14 +12,14 @@ import (
 	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/generated/server"
 )
 
-// CreateTodo is the resolver for the createTodo field.
-func (r *mutationResolver) CreateTodo(ctx context.Context, input model.NewTodo) (*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: CreateTodo - createTodo"))
+// Auth is the resolver for the auth field.
+func (r *mutationResolver) Auth(ctx context.Context) (*model.AuthMutation, error) {
+	return &model.AuthMutation{}, nil
 }
 
-// Todos is the resolver for the todos field.
-func (r *queryResolver) Todos(ctx context.Context) ([]*model.Todo, error) {
-	panic(fmt.Errorf("not implemented: Todos - todos"))
+// Hello is the resolver for the hello field.
+func (r *queryResolver) Hello(ctx context.Context) (string, error) {
+	panic(fmt.Errorf("not implemented: Hello - hello"))
 }
 
 // Mutation returns server.MutationResolver implementation.
