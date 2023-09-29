@@ -3,7 +3,7 @@
 //   sqlc v1.22.0
 // source: query.sql
 
-package domain
+package psql
 
 import (
 	"context"

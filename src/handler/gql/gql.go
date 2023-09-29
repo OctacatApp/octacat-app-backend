@@ -6,14 +6,21 @@ import (
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/irdaislakhuafa/octacat-app-backend/src/business/usecase"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/generated/server"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/config"
 )
 
 const defaultPort = "8080"
 
-func InitAndRun(cfg config.AppConfig) {
-	srv := handler.NewDefaultServer(server.NewExecutableSchema(server.Config{Resolvers: &Resolver{}}))
+func InitAndRun(cfg config.AppConfig, uc usecase.Usecase) {
+	srv := handler.NewDefaultServer(
+		server.NewExecutableSchema(
+			server.Config{
+				Resolvers: &Resolver{},
+			},
+		),
+	)
 
 	http.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	http.Handle("/query", srv)

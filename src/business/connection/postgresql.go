@@ -6,9 +6,10 @@ import (
 
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/config"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/operator"
+	_ "github.com/lib/pq"
 )
 
-func New(cfg config.AppConfig) *sql.DB {
+func NewPostgreSQL(cfg config.AppConfig) *sql.DB {
 	psql := cfg.DataSource.PostgreSQL
 	datasource := fmt.Sprintf("host=%v port=%v user=%v password=%v dbname=%v sslmode=%v", psql.Host, psql.Port, psql.Username, psql.Password, psql.Database, operator.Ternary(psql.SSL, "enable", "disable"))
 	db, err := sql.Open(psql.Driver, datasource)

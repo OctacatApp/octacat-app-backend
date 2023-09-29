@@ -2,19 +2,17 @@ package usecase
 
 import (
 	"github.com/irdaislakhuafa/octacat-app-backend/src/business/domain"
+	"github.com/irdaislakhuafa/octacat-app-backend/src/business/usecase/user"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/config"
 )
 
-type Interface interface{}
-type usecase struct {
-	cfg     config.AppConfig
-	queries domain.Queries
+type Usecase struct {
+	User user.Interface
 }
 
-func New(cfg config.AppConfig, queries domain.Queries) Interface {
-	result := &usecase{
-		cfg:     cfg,
-		queries: queries,
+func New(cfg config.AppConfig, domain domain.Domain) Usecase {
+	result := Usecase{
+		User: user.New(cfg, domain),
 	}
 	return result
 }

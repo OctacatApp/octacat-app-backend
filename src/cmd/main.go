@@ -3,6 +3,9 @@ package main
 import (
 	"fmt"
 
+	"github.com/irdaislakhuafa/octacat-app-backend/src/business/connection"
+	"github.com/irdaislakhuafa/octacat-app-backend/src/business/domain"
+	"github.com/irdaislakhuafa/octacat-app-backend/src/business/usecase"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/configreader"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/files"
@@ -33,8 +36,17 @@ func main() {
 		panic(err)
 	}
 
+	// init psql db
+	psqlDB := connection.NewPostgreSQL(*cfg)
+
+	// init domain
+	domain := domain.New(psqlDB)
+
+	// init usecase
+	usecase := usecase.New(*cfg, domain)
+
 	// init and run graphql server
-	gql.InitAndRun(*cfg)
+	gql.InitAndRun(*cfg, usecase)
 
 	fmt.Printf("cfg: %v\n", *cfg)
 }
