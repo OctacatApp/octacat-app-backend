@@ -11,6 +11,10 @@
 		},
 		"Default": {
 			"Me": "system"
+		},
+		"JWT": {
+			"Secret": "OctacatAppSecret",
+			"ExpInMinute": 43200
 		}
 	},
 	"SMTP": {

@@ -13,8 +13,13 @@ var (
 	ErrClaimsTypeNotEquals  = errors.New("claims type is not equals")
 )
 
+type JWTResponse struct {
+	Message string `json:"message"`
+	Token   string `json:"token"`
+}
+
 type Claims struct {
-	UserID string
+	UserID string `json:"user_id,omitempty"`
 	jwt.RegisteredClaims
 }
 
@@ -24,6 +29,7 @@ func NewJWT[C jwt.Claims](claims C, secret []byte) (*string, error) {
 	if err != nil {
 		return nil, err
 	}
+
 	return &tokenString, nil
 }
 

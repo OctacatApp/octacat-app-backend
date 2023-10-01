@@ -3,6 +3,7 @@ package transform
 import (
 	"github.com/irdaislakhuafa/octacat-app-backend/src/business/generated/psql"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/generated/model"
+	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/tokens"
 )
 
 func FromRegisterParams(params model.RegisterParam) (psql.CreateUserParams, error) {
@@ -29,6 +30,22 @@ func ToUserModel(params psql.User) (model.User, error) {
 		DeletedAt:    params.DeletedAt.Time.Format(layout),
 		DeletedBy:    params.DeletedBy.String,
 		IsDeleted:    params.IsDeleted,
+	}
+	return result, nil
+}
+
+func FromLoginParam(params model.LoginParam) (psql.User, error) {
+	result := psql.User{
+		Email:    params.Email,
+		Password: params.Password,
+	}
+	return result, nil
+}
+
+func ToJWTResponseModel(params tokens.JWTResponse) (model.JWTResponse, error) {
+	result := model.JWTResponse{
+		Message: params.Message,
+		Token:   params.Token,
 	}
 	return result, nil
 }

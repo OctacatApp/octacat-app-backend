@@ -14,7 +14,6 @@ import (
 
 // Register is the resolver for the register field.
 func (r *authMutationResolver) Register(ctx context.Context, obj *model.AuthMutation, param model.RegisterParam) (*model.User, error) {
-	// TODO: create convertion code
 	params, err := transform.FromRegisterParams(param)
 	if err != nil {
 		return nil, err
@@ -26,6 +25,26 @@ func (r *authMutationResolver) Register(ctx context.Context, obj *model.AuthMuta
 	}
 
 	response, err := transform.ToUserModel(result)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
+}
+
+// Login is the resolver for the login field.
+func (r *authMutationResolver) Login(ctx context.Context, obj *model.AuthMutation, param model.LoginParam) (*model.JWTResponse, error) {
+	params, err := transform.FromLoginParam(param)
+	if err != nil {
+		return nil, err
+	}
+
+	result, err := r.Usecase.User.Login(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := transform.ToJWTResponseModel(result)
 	if err != nil {
 		return nil, err
 	}

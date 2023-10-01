@@ -3,7 +3,18 @@
 package model
 
 type AuthMutation struct {
-	Register *User `json:"register"`
+	Register *User        `json:"register"`
+	Login    *JWTResponse `json:"login"`
+}
+
+type JWTResponse struct {
+	Message string `json:"message"`
+	Token   string `json:"token"`
+}
+
+type LoginParam struct {
+	Email    string `json:"email"`
+	Password string `json:"password"`
 }
 
 type RegisterParam struct {
