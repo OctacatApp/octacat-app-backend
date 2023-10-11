@@ -2,7 +2,6 @@ package tokens
 
 import (
 	"errors"
-	"reflect"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -18,11 +17,6 @@ type JWTResponse struct {
 	Token   string `json:"token"`
 }
 
-type Claims struct {
-	UserID string `json:"user_id,omitempty"`
-	jwt.RegisteredClaims
-}
-
 func NewJWT[C jwt.Claims](claims C, secret []byte) (*string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(secret)
@@ -34,10 +28,6 @@ func NewJWT[C jwt.Claims](claims C, secret []byte) (*string, error) {
 }
 
 func Validate[C jwt.Claims](tokenString string, secret []byte, claims C) (*jwt.Token, error) {
-	if reflect.TypeOf(claims).Kind() != reflect.Pointer {
-		return nil, ErrClaimsNotPointer
-	}
-
 	keyFunc := func(t *jwt.Token) (interface{}, error) {
 		if _, isOk := t.Method.(*jwt.SigningMethodHMAC); !isOk {
 			return nil, ErrInvalidSigningMethod
@@ -56,10 +46,8 @@ func Validate[C jwt.Claims](tokenString string, secret []byte, claims C) (*jwt.T
 func GetClaims[C jwt.Claims](token *jwt.Token) (C, error) {
 	claims, isOk := token.Claims.(C)
 	if !isOk {
-		if tc := reflect.TypeOf(claims); tc.Kind() != reflect.Pointer {
-			return claims, ErrClaimsNotPointer
-		}
 		return claims, ErrClaimsTypeNotEquals
 	}
+
 	return claims, nil
 }

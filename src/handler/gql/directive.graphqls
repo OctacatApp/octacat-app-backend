@@ -1,6 +1,3 @@
 # Docs https://gqlgen.com/config/
-directive @goField(
-  forceResolver: Boolean
-  name: String
-  omittable: Boolean
-) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+directive @goField(forceResolver: Boolean, name: String, omittable: Boolean) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+directive @jwt on INPUT_FIELD_DEFINITION | FIELD_DEFINITION

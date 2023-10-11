@@ -11,6 +11,7 @@ import (
 	"github.com/irdaislakhuafa/go-argon2/argon2"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/business/domain"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/business/generated/psql"
+	"github.com/irdaislakhuafa/octacat-app-backend/src/entity"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/config"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/tokens"
 )
@@ -80,7 +81,7 @@ func (u *user) Login(ctx context.Context, params psql.User) (tokens.JWTResponse,
 
 	expAt := time.Now().Add(time.Minute * time.Duration(u.cfg.App.JWT.ExpInMinute))
 	issAt := time.Now()
-	claims := tokens.Claims{
+	claims := entity.Claims{
 		UserID: user.ID,
 		RegisteredClaims: jwt.RegisteredClaims{
 			IssuedAt:  jwt.NewNumericDate(issAt),
