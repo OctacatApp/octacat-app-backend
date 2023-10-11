@@ -26,7 +26,7 @@ func InitAndRun(cfg *config.AppConfig, uc *usecase.Usecase) {
 	)
 
 	server := http.DefaultServeMux
-	server.Handle("/", playground.Handler("GraphQL playground", "/query"))
+	server.Handle("/", CORSHandler(playground.Handler("GraphQL playground", "/query")))
 	server.Handle("/query", CORSHandler(srv))
 
 	handler := (http.Handler)(server)
