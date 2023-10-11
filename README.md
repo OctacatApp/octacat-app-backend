@@ -30,4 +30,4 @@ the option `-env` will search environment configuration in `etc/cfg/*`
 
 ## Deployed App
 
-You can access deployed app [here](https://octacat-app-backend.fly.dev/)
+You can access deployed app [here](https://octacat-app-backend.fly.dev/). If you want to use this API send your GraphQL query to `https://octacat-app-backend.fly.dev/query`
