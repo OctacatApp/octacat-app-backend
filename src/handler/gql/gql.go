@@ -25,9 +25,8 @@ func InitAndRun(cfg *config.AppConfig, uc *usecase.Usecase, serverMux *http.Serv
 		),
 	)
 
-	// uri handler for GraphQL
-	serverMux.Handle("/", playground.Handler("GraphQL playground", "/query"))
-	serverMux.Handle("/query", srv)
+	serverMux.Handle("/", CORSHandler(playground.Handler("GraphQL playground", "/query")))
+	serverMux.Handle("/query", CORSHandler(srv))
 
 	// middlewares
 	handler := (http.Handler)(serverMux)
@@ -35,4 +34,20 @@ func InitAndRun(cfg *config.AppConfig, uc *usecase.Usecase, serverMux *http.Serv
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", cfg.App.Router.GQL.Port)
 	return handler
+}
+
+func CORSHandler(handler http.Handler) http.HandlerFunc {
+	f := func(w http.ResponseWriter, r *http.Request) {
+		cors := map[string]string{
+			"Access-Control-Allow-Origin":  "*",
+			"Access-Control-Allow-Methods": "*",
+			"Access-Control-Allow-Headers": "*",
+		}
+
+		for k, v := range cors {
+			w.Header().Set(k, v)
+		}
+		handler.ServeHTTP(w, r)
+	}
+	return f
 }
