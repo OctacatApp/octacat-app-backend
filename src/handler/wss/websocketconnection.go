@@ -50,7 +50,7 @@ func (wsc *WebSocketConnection) Chat(c *websocket.Conn) {
 				continue
 			}
 
-			// if connection is done break the loop
+			// if connection is done, break the loop
 			if err == io.EOF {
 				break
 			}
@@ -83,7 +83,6 @@ func (wsc *WebSocketConnection) Chat(c *websocket.Conn) {
 		if !isExist {
 			client := WebSocketClient{
 				ID:         request.FromUserID,
-				Name:       "",
 				Connection: c,
 			}
 			wsc.clients[request.FromUserID] = client
