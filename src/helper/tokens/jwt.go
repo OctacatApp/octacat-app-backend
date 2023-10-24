@@ -2,6 +2,7 @@ package tokens
 
 import (
 	"errors"
+	"reflect"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -28,6 +29,10 @@ func NewJWT[C jwt.Claims](claims C, secret []byte) (*string, error) {
 }
 
 func Validate[C jwt.Claims](tokenString string, secret []byte, claims C) (*jwt.Token, error) {
+	if t := reflect.TypeOf(claims); t.Kind() != reflect.Ptr {
+		return nil, ErrClaimsNotPointer
+	}
+
 	keyFunc := func(t *jwt.Token) (interface{}, error) {
 		if _, isOk := t.Method.(*jwt.SigningMethodHMAC); !isOk {
 			return nil, ErrInvalidSigningMethod
