@@ -2,10 +2,12 @@ package wss
 
 import (
 	"encoding/json"
+	"fmt"
+	"io"
 	"log"
 	"net/http"
-	"strings"
 
+	"github.com/go-playground/validator/v10"
 	"golang.org/x/net/websocket"
 )
 
@@ -19,67 +21,108 @@ type WebSocketClient struct {
 	Connection *websocket.Conn `json:"-"`
 }
 
+type ChatRequest struct {
+	FromUserID string `json:"from_user_id,omitempty" validate:"required"`
+	ToUserID   string `json:"to_user_id,omitempty"   validate:"required"`
+	Message    string `json:"message,omitempty"      validate:"required"`
+}
+
+type ChatResponse struct {
+	FromUserID string `json:"from_user_id,omitempty" validate:"required"`
+	ToUserID   string `json:"to_user_id,omitempty"   validate:"required"`
+	Message    string `json:"message,omitempty"      validate:"required"`
+}
+
+type WSSResponse[T any] struct {
+	ErrorsMSG []string `json:"errors_msg,omitempty"`
+	Data      T        `json:"data,omitempty"`
+}
+
 func (wsc *WebSocketConnection) Chat(c *websocket.Conn) {
-	query := c.Request().URL.Query()
-	toUserID := query.Get("to_user_id")
-	fromUserID := query.Get("from_user_id")
-
-	log.Printf("client with user_id '%v' is connected", fromUserID)
-
-	defer func() {
-		log.Printf("client with user_id '%v' disconnected", fromUserID)
-		// c.Close()
-		// delete(wsc.clients, fromUserID)
-	}()
-
-	if strings.Trim(toUserID, " ") == "" {
-		c.WriteClose(websocket.CloseFrame)
-		log.Println("user_id is empty")
-		return
-	}
-
-	if strings.Trim(fromUserID, " ") == "" {
-		c.WriteClose(websocket.CloseFrame)
-		log.Println("from_id is empty")
-		return
-	}
-
-	if _, isOk := wsc.clients[toUserID]; !isOk {
-		wsc.clients[toUserID] = WebSocketClient{
-			ID:         toUserID,
-			Name:       "haha",
-			Connection: c,
-		}
-	}
-
-	if _, isOk := wsc.clients[fromUserID]; !isOk {
-		wsc.clients[fromUserID] = WebSocketClient{
-			ID:         fromUserID,
-			Name:       "hihi",
-			Connection: c,
-		}
-	}
-
-	client := wsc.clients[toUserID]
-	from := wsc.clients[fromUserID]
-
+	ws := websocket.JSON
 	for {
-		msg := ""
-		if err := websocket.Message.Receive(c, &msg); err != nil {
-			log.Println(err)
-			break
+		// receive json from client
+		request := new(ChatRequest)
+		if err := ws.Receive(c, request); err != nil {
+			result := WSSResponse[ChatResponse]{ErrorsMSG: []string{err.Error()}}
+			if err := ws.Send(c, result); err != nil {
+				log.Println(err)
+				continue
+			}
+
+			// if connection is done break the loop
+			if err == io.EOF {
+				break
+			}
 		}
 
-		// for _, client := range wsc.clients {
-		if err := websocket.Message.Send(client.Connection, msg); err != nil {
-			log.Println(err)
-			break
+		// validate json body
+		validate := validator.New(validator.WithRequiredStructEnabled())
+		if err := validate.Struct(request); err != nil {
+			result := WSSResponse[ChatResponse]{}
+			if vErr, isOk := err.(validator.ValidationErrors); isOk {
+				for _, err := range vErr {
+					result.ErrorsMSG = append(result.ErrorsMSG, fmt.Sprintf("field '%v' have tag '%v'", err.Field(), err.Tag()))
+				}
+
+				if err := ws.Send(c, result); err != nil {
+					log.Println(err)
+					continue
+				}
+			} else {
+				result.ErrorsMSG = append(result.ErrorsMSG, err.Error())
+				if err := ws.Send(c, result); err != nil {
+					log.Println(err)
+					continue
+				}
+			}
 		}
-		if err := websocket.Message.Send(from.Connection, msg); err != nil {
-			log.Println(err)
-			break
+
+		// create connection client if not exist
+		from, isExist := wsc.clients[request.FromUserID]
+		if !isExist {
+			client := WebSocketClient{
+				ID:         request.FromUserID,
+				Name:       "",
+				Connection: c,
+			}
+			wsc.clients[request.FromUserID] = client
+			from = wsc.clients[request.FromUserID]
+			log.Printf("client with user_id '%v' is connected", request.FromUserID)
+
+			// cleanup connection if done
+			defer func() {
+				log.Printf("client with user_id '%v' disconnected", request.FromUserID)
+				c.Close()
+				delete(wsc.clients, request.FromUserID)
+			}()
 		}
-		// }
+
+		// send message
+		result := WSSResponse[ChatResponse]{
+			ErrorsMSG: []string{},
+			Data: ChatResponse{
+				FromUserID: request.FromUserID,
+				ToUserID:   request.ToUserID,
+				Message:    request.Message,
+			},
+		}
+
+		to, isOnline := wsc.clients[request.ToUserID]
+		if !isOnline {
+			result := WSSResponse[ChatResponse]{
+				ErrorsMSG: []string{fmt.Sprintf("user with id '%v' is not online", request.ToUserID)},
+			}
+			if err := ws.Send(from.Connection, result); err != nil {
+				log.Println(err)
+			}
+			continue
+		}
+
+		if err := ws.Send(to.Connection, result); err != nil {
+			log.Println(err)
+			continue
+		}
 	}
 }
 
