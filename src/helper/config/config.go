@@ -13,7 +13,11 @@ type App struct {
 			Port string
 		}
 		WSS struct {
-			Port string
+			Port                     string
+			ReadBufferSize           int64
+			WriteBufferSize          int64
+			HandshakeTimeoutInMinute int64
+			EnableCompression        bool
 		}
 	}
 	Default struct {

@@ -14,7 +14,7 @@ import (
 
 const defaultPort = "8080"
 
-func InitAndRun(cfg *config.AppConfig, uc *usecase.Usecase) {
+func InitAndRun(cfg *config.AppConfig, uc *usecase.Usecase, serverMux *http.ServeMux) http.Handler {
 	srv := handler.NewDefaultServer(
 		server.NewExecutableSchema(
 			server.Config{
@@ -25,15 +25,15 @@ func InitAndRun(cfg *config.AppConfig, uc *usecase.Usecase) {
 		),
 	)
 
-	server := http.DefaultServeMux
-	server.Handle("/", CORSHandler(playground.Handler("GraphQL playground", "/query")))
-	server.Handle("/query", CORSHandler(srv))
+	serverMux.Handle("/", CORSHandler(playground.Handler("GraphQL playground", "/query")))
+	serverMux.Handle("/query", CORSHandler(srv))
 
-	handler := (http.Handler)(server)
+	// middlewares
+	handler := (http.Handler)(serverMux)
 	handler = middlewares.GraphQLMiddleware(cfg, uc)(handler)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", cfg.App.Router.GQL.Port)
-	log.Fatal(http.ListenAndServe(":"+cfg.App.Router.GQL.Port, handler))
+	return handler
 }
 
 func CORSHandler(handler http.Handler) http.HandlerFunc {

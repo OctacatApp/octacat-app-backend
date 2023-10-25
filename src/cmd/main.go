@@ -2,12 +2,15 @@ package main
 
 import (
 	"fmt"
+	"log"
+	"net/http"
 
 	"github.com/irdaislakhuafa/octacat-app-backend/src/business/connection"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/business/domain"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/business/generated"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/business/usecase"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql"
+	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/wss"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/configreader"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/files"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/flags"
@@ -49,8 +52,15 @@ func main() {
 	// init usecase
 	usecase := usecase.New(cfg, &domain)
 
-	// init and run graphql server
-	gql.InitAndRun(cfg, &usecase)
+	// init server
+	server := http.DefaultServeMux
 
-	fmt.Printf("cfg: %v\n", *cfg)
+	// init and run graphql server
+	handler := gql.InitAndRun(cfg, &usecase, server)
+
+	// init and run websocket
+	handler = wss.InitAndRun(cfg, server)
+
+	// start server
+	log.Fatal(http.ListenAndServe(":"+cfg.App.Router.GQL.Port, handler))
 }

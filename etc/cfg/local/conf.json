@@ -6,7 +6,11 @@
 				"Port": "8080"
 			},
 			"WSS": {
-				"Port": "8080"
+				"Port": "8080",
+				"ReadBufferSize": 1024,
+				"WriteBufferSize": 1024,
+				"HandshakeTimeoutInMinute": 0,
+				"EnableCompression": false
 			}
 		},
 		"Default": {
