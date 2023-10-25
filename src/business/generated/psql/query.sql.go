@@ -67,6 +67,51 @@ func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (User, e
 	return i, err
 }
 
+const getListUserWithPagination = `-- name: GetListUserWithPagination :many
+SELECT id, name, email, password, profile_image, created_at, created_by, updated_at, updated_by, deleted_at, deleted_by, is_deleted FROM users LIMIT $1 OFFSET $2
+`
+
+type GetListUserWithPaginationParams struct {
+	Limit  int32
+	Offset int32
+}
+
+func (q *Queries) GetListUserWithPagination(ctx context.Context, arg GetListUserWithPaginationParams) ([]User, error) {
+	rows, err := q.db.QueryContext(ctx, getListUserWithPagination, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []User
+	for rows.Next() {
+		var i User
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Email,
+			&i.Password,
+			&i.ProfileImage,
+			&i.CreatedAt,
+			&i.CreatedBy,
+			&i.UpdatedAt,
+			&i.UpdatedBy,
+			&i.DeletedAt,
+			&i.DeletedBy,
+			&i.IsDeleted,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Close(); err != nil {
+		return nil, err
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
 const getUserByEmail = `-- name: GetUserByEmail :one
 SELECT id, name, email, password, profile_image, created_at, created_by, updated_at, updated_by, deleted_at, deleted_by, is_deleted FROM users WHERE email = $1
 `

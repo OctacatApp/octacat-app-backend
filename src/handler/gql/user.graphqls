@@ -2,6 +2,10 @@
 #
 # https://gqlgen.com/getting-started/
 
+type UserQuery {
+  getList(param: GetListParams!): UserPagination! @goField(forceResolver: true)
+}
+
 type User {
   id: String!
   name: String!
@@ -15,4 +19,16 @@ type User {
   deletedAt: String! # dd/MM/yyyy HH:mm:ss
   deletedBy: String!
   isDeleted: Boolean!
+}
+
+input GetListParams {
+  limit: Int!
+  page: Int!
+}
+
+type UserPagination {
+  limit: Int!
+  page: Int!
+  totalPage: Int!
+  data: [User!]
 }

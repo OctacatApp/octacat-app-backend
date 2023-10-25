@@ -42,6 +42,7 @@ func main() {
 
 	// init psql db
 	psqlDB := connection.NewPostgreSQL(cfg)
+	defer psqlDB.Close()
 
 	// init generated code from sqlc
 	gen := generated.New(psqlDB)

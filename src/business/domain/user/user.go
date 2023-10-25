@@ -14,6 +14,7 @@ import (
 type Interface interface {
 	Create(ctx context.Context, params psql.CreateUserParams) (psql.User, error)
 	GetByEmail(ctx context.Context, email string) (psql.User, error)
+	GetListWithPagination(ctx context.Context, params psql.GetListUserWithPaginationParams) ([]psql.User, error)
 }
 type user struct {
 	cfg    *config.AppConfig
@@ -61,4 +62,12 @@ func (u *user) GetByEmail(ctx context.Context, email string) (psql.User, error) 
 	}
 
 	return user, nil
+}
+
+func (u *user) GetListWithPagination(ctx context.Context, params psql.GetListUserWithPaginationParams) ([]psql.User, error) {
+	users, err := u.gen.PSQL.GetListUserWithPagination(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+	return users, nil
 }

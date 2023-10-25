@@ -22,6 +22,11 @@ func (r *queryResolver) Hello(ctx context.Context) (string, error) {
 	return fmt.Sprintf("World, %+v", ctx.Value("claims")), nil
 }
 
+// User is the resolver for the user field.
+func (r *queryResolver) User(ctx context.Context) (*model.UserQuery, error) {
+	return &model.UserQuery{}, nil
+}
+
 // Mutation returns server.MutationResolver implementation.
 func (r *Resolver) Mutation() server.MutationResolver { return &mutationResolver{r} }
 

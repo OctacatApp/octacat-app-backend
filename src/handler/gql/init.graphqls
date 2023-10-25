@@ -4,4 +4,5 @@ type Mutation {
 
 type Query {
   hello: String! @jwt
+  user: UserQuery! @goField(forceResolver: true)
 }
