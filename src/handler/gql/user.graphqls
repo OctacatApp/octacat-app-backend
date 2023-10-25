@@ -30,5 +30,6 @@ type UserPagination {
   limit: Int!
   page: Int!
   totalPage: Int!
+  totalData: Int!
   data: [User!]
 }

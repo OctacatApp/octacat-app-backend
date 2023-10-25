@@ -47,6 +47,7 @@ type UserPagination struct {
 	Limit     int     `json:"limit"`
 	Page      int     `json:"page"`
 	TotalPage int     `json:"totalPage"`
+	TotalData int     `json:"totalData"`
 	Data      []*User `json:"data,omitempty"`
 }
 

@@ -19,6 +19,8 @@ import (
 type Interface interface {
 	Register(ctx context.Context, params psql.CreateUserParams) (psql.User, error)
 	Login(ctx context.Context, params psql.User) (tokens.JWTResponse, error)
+	GetListWithPagination(ctx context.Context, params psql.GetListUserWithPaginationParams) ([]psql.User, error)
+	Count(ctx context.Context) (int64, error)
 }
 
 type user struct {
@@ -100,5 +102,26 @@ func (u *user) Login(ctx context.Context, params psql.User) (tokens.JWTResponse,
 		Token:   *tokenString,
 	}
 
+	return result, nil
+}
+
+func (u *user) GetListWithPagination(ctx context.Context, params psql.GetListUserWithPaginationParams) ([]psql.User, error) {
+	if params.Limit <= 0 {
+		return nil, errors.New("minimum limit is once")
+	}
+	params.Offset = (params.Offset - 1) * params.Limit
+	results, err := u.domain.User.GetListWithPagination(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	return results, nil
+}
+
+func (u *user) Count(ctx context.Context) (int64, error) {
+	result, err := u.domain.User.Count(ctx)
+	if err != nil {
+		return 0, err
+	}
 	return result, nil
 }

@@ -6,7 +6,6 @@ package gql
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/generated/model"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/generated/server"
@@ -20,8 +19,22 @@ func (r *userQueryResolver) GetList(ctx context.Context, obj *model.UserQuery, p
 		return nil, err
 	}
 
-	// results, err := r.Usecase.User.Login()
-	panic(fmt.Errorf("not implemented: GetList - getList"))
+	results, err := r.Usecase.User.GetListWithPagination(ctx, params)
+	if err != nil {
+		return nil, err
+	}
+
+	total, err := r.Usecase.User.Count(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	response, err := transform.ToUserPaginationModel(params, total, results...)
+	if err != nil {
+		return nil, err
+	}
+
+	return &response, nil
 }
 
 // UserQuery returns server.UserQueryResolver implementation.
