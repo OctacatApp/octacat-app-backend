@@ -19,7 +19,7 @@ func (r *mutationResolver) Auth(ctx context.Context) (*model.AuthMutation, error
 
 // Hello is the resolver for the hello field.
 func (r *queryResolver) Hello(ctx context.Context) (string, error) {
-	panic(fmt.Errorf("not implemented: Hello - hello"))
+	return fmt.Sprintf("World, %+v", ctx.Value("claims")), nil
 }
 
 // Mutation returns server.MutationResolver implementation.

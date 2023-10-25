@@ -18,11 +18,6 @@ type JWTResponse struct {
 	Token   string `json:"token"`
 }
 
-type Claims struct {
-	UserID string `json:"user_id,omitempty"`
-	jwt.RegisteredClaims
-}
-
 func NewJWT[C jwt.Claims](claims C, secret []byte) (*string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(secret)
@@ -34,7 +29,7 @@ func NewJWT[C jwt.Claims](claims C, secret []byte) (*string, error) {
 }
 
 func Validate[C jwt.Claims](tokenString string, secret []byte, claims C) (*jwt.Token, error) {
-	if reflect.TypeOf(claims).Kind() != reflect.Pointer {
+	if t := reflect.TypeOf(claims); t.Kind() != reflect.Ptr {
 		return nil, ErrClaimsNotPointer
 	}
 
@@ -56,10 +51,8 @@ func Validate[C jwt.Claims](tokenString string, secret []byte, claims C) (*jwt.T
 func GetClaims[C jwt.Claims](token *jwt.Token) (C, error) {
 	claims, isOk := token.Claims.(C)
 	if !isOk {
-		if tc := reflect.TypeOf(claims); tc.Kind() != reflect.Pointer {
-			return claims, ErrClaimsNotPointer
-		}
 		return claims, ErrClaimsTypeNotEquals
 	}
+
 	return claims, nil
 }
