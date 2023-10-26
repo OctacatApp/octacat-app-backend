@@ -1,6 +1,14 @@
 # Overview
 
-Simple Backend Application for the [Octacat App Chatting](https://github.com/OctacatApp/octacat-app-frontend.git) application made with Go programming language with a little Coffee and Clean Architecture
+Simple Backend Application for the [Octacat App Chatting](https://github.com/OctacatApp/octacat-app-frontend.git) application made with Go programming language with a little Coffee and Clean Architecture. This app support some protocol below for Octachat App
+
+- GraphQL
+  - Base URL : https://octacat-app-backend.fly.dev/query
+  - GraphiQL : https://octacat-app-backend.fly.dev
+- Websocket
+  - Base URl : wss://octacat-app-backend.fly.dev
+  - Chat for 2 user : /wss/chat
+  - List Online User/Client : /wss/chat/list
 
 # Tech stack
 
