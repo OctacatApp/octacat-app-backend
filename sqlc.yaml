@@ -10,7 +10,8 @@ sql:
       gen:
         go:
           package: "psql"
-          out: "./src/business/domain/psql"
+          out: "./src/business/generated/psql"
+          # sql_package: "pgx/v5"
       database:
         uri: "postgresql://postgres:postgres@localhost:5432/octacat_db"
 

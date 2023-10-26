@@ -26,10 +26,10 @@
 	"DataSource": {
 		"PostgreSQL": {
 			"Driver": "postgres",
-			"Host": "bx8ooiwiq7aap7qbcq7t-postgresql.services.clever-cloud.com",
+			"Host": "bxqjb4ringd4adxsu2ml-postgresql.services.clever-cloud.com",
 			"Username": "uo2hycp9k5ul6zllqkvn",
 			"Password": "DCCgGoMj2egu8cNehCv6NuttdFmTVj",
-			"Database": "bx8ooiwiq7aap7qbcq7t",
+			"Database": "bxqjb4ringd4adxsu2ml",
 			"Port": 5432,
 			"SSL": false
 		}

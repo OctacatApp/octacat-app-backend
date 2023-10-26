@@ -10,12 +10,11 @@ import (
 	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/directives"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/generated/server"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/config"
-	"github.com/irdaislakhuafa/octacat-app-backend/src/middlewares"
 )
 
 const defaultPort = "8080"
 
-func InitAndRun(cfg *config.AppConfig, uc *usecase.Usecase, serverMux *http.ServeMux) http.Handler {
+func InitAndRun(cfg *config.AppConfig, uc *usecase.Usecase, serverMux *http.ServeMux) *http.ServeMux {
 	srv := handler.NewDefaultServer(
 		server.NewExecutableSchema(
 			server.Config{
@@ -29,15 +28,11 @@ func InitAndRun(cfg *config.AppConfig, uc *usecase.Usecase, serverMux *http.Serv
 		),
 	)
 
-	serverMux.Handle("/", CORSHandler(playground.Handler("GraphQL playground", "/query")))
+	serverMux.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	serverMux.Handle("/query", CORSHandler(srv))
 
-	// middlewares
-	handler := (http.Handler)(serverMux)
-	handler = middlewares.GraphQLMiddleware(cfg, uc)(handler)
-
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", cfg.App.Router.GQL.Port)
-	return handler
+	return serverMux
 }
 
 func CORSHandler(handler http.Handler) http.HandlerFunc {

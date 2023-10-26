@@ -7,6 +7,11 @@ type AuthMutation struct {
 	Login    *JWTResponse `json:"login"`
 }
 
+type GetListParams struct {
+	Limit int `json:"limit"`
+	Page  int `json:"page"`
+}
+
 type JWTResponse struct {
 	Message string `json:"message"`
 	Token   string `json:"token"`
@@ -36,4 +41,16 @@ type User struct {
 	DeletedAt    string `json:"deletedAt"`
 	DeletedBy    string `json:"deletedBy"`
 	IsDeleted    bool   `json:"isDeleted"`
+}
+
+type UserPagination struct {
+	Limit     int     `json:"limit"`
+	Page      int     `json:"page"`
+	TotalPage int     `json:"totalPage"`
+	TotalData int     `json:"totalData"`
+	Data      []*User `json:"data,omitempty"`
+}
+
+type UserQuery struct {
+	GetList *UserPagination `json:"getList"`
 }

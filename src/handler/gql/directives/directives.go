@@ -10,11 +10,16 @@ import (
 	"github.com/99designs/gqlgen/graphql"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/entity"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/config"
+	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/key"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/tokens"
 )
 
 func JWTDirective(ctx context.Context, _ any, next graphql.Resolver) (res any, err error) {
-	headers := ctx.Value("headers").(http.Header)
+	headers := http.Header{}
+	if h, isOk := ctx.Value(key.Key("headers")).(http.Header); isOk {
+		headers = h
+	}
+
 	authorization := headers.Get("authorization")
 	mustPrefix := "bearer"
 
@@ -26,7 +31,7 @@ func JWTDirective(ctx context.Context, _ any, next graphql.Resolver) (res any, e
 		return nil, errors.New(fmt.Sprintf("your 'authorization' header not start with '%v'", mustPrefix))
 	}
 
-	cfg := ctx.Value("cfg").(*config.AppConfig)
+	cfg := ctx.Value(key.Key("cfg")).(*config.AppConfig)
 	tokenString := authorization[len(mustPrefix)+1:]
 	token, err := tokens.Validate(tokenString, []byte(cfg.App.JWT.Secret), &entity.Claims{})
 	if err != nil {
@@ -38,6 +43,6 @@ func JWTDirective(ctx context.Context, _ any, next graphql.Resolver) (res any, e
 		return nil, err
 	}
 
-	ctx = context.WithValue(ctx, "claims", *claims)
+	ctx = context.WithValue(ctx, key.Key("claims"), *claims)
 	return next(ctx)
 }

@@ -30,3 +30,9 @@ UPDATE users SET
 WHERE
 	id = $1
 RETURNING *;
+
+-- name: GetListUserWithPagination :many
+SELECT * FROM users LIMIT $1 OFFSET $2;
+
+-- name: CountUser :one
+SELECT COUNT(id) as total FROM users; 
