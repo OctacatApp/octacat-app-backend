@@ -33,8 +33,7 @@ func InitAndRun(cfg *config.AppConfig, uc *usecase.Usecase, serverMux *http.Serv
 	serverMux.Handle("/query", CORSHandler(srv))
 
 	// middlewares
-	handler := (http.Handler)(serverMux)
-	handler = middlewares.GraphQLMiddleware(cfg, uc)(handler)
+	handler := middlewares.GraphQLMiddleware(cfg, uc)(serverMux)
 
 	log.Printf("connect to http://localhost:%s/ for GraphQL playground", cfg.App.Router.GQL.Port)
 	return handler
