@@ -1,6 +1,12 @@
-FROM golang:alpine AS igo
+# builder stage
+FROM golang:alpine AS builder
 WORKDIR /app
 COPY . .
-RUN dir="src/cmd/" \
-	&& go build -o $dir/main $dir/main.go
-CMD [ "./src/cmd/main", "-env", "prod" ]
+RUN go build -o build/main src/cmd/main.go
+
+# app stage
+FROM alpine:latest
+WORKDIR /app
+COPY --from=builder /app/build /app/build  
+COPY --from=builder /app/etc /app/etc
+CMD [ "./build/main", "-env", "prod" ]
