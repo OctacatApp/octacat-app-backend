@@ -30,7 +30,7 @@
 			"Username": "uo2hycp9k5ul6zllqkvn",
 			"Password": "DCCgGoMj2egu8cNehCv6NuttdFmTVj",
 			"Database": "bxqjb4ringd4adxsu2ml",
-			"Port": 5432,
+			"Port": 50013,
 			"SSL": false
 		}
 	}
