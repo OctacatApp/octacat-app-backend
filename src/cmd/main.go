@@ -14,6 +14,7 @@ import (
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/configreader"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/files"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/flags"
+	"github.com/irdaislakhuafa/octacat-app-backend/src/middlewares"
 )
 
 const (
@@ -56,11 +57,14 @@ func main() {
 	// init server
 	server := http.DefaultServeMux
 
-	// init and run graphql server
-	handler := gql.InitAndRun(cfg, &usecase, server)
-
 	// init and run websocket
-	handler = wss.InitAndRun(cfg, server)
+	server = wss.InitAndRun(cfg, server)
+
+	// init and run graphql server
+	server = gql.InitAndRun(cfg, &usecase, server)
+
+	// middlewares
+	handler := middlewares.GraphQLMiddleware(cfg, &usecase)(server)
 
 	// start server
 	log.Fatal(http.ListenAndServe(":"+cfg.App.Router.GQL.Port, handler))

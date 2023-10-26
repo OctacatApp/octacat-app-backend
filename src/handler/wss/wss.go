@@ -7,12 +7,12 @@ import (
 	"golang.org/x/net/websocket"
 )
 
-func InitAndRun(_ *config.AppConfig, server *http.ServeMux) http.Handler {
+func InitAndRun(_ *config.AppConfig, server *http.ServeMux) *http.ServeMux {
 	wsc := &WebSocketConnection{
 		clients: map[string]WebSocketClient{},
 	}
 	server.Handle("/wss/chat", websocket.Handler(wsc.Chat))
 	server.Handle("/wss/chat/list", http.HandlerFunc(wsc.GetListClient))
 
-	return (http.Handler)(server)
+	return server
 }
