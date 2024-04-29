@@ -23,6 +23,7 @@ func InitAndRun(ctx context.Context, cfg *config.AppConfig, uc *usecase.Usecase,
 				},
 				Directives: server.DirectiveRoot{
 					Jwt: directives.JWTDirective,
+					Log: directives.LogDirective(log),
 				},
 			},
 		),

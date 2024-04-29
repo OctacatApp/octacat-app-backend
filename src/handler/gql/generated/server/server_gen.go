@@ -46,6 +46,7 @@ type ResolverRoot interface {
 
 type DirectiveRoot struct {
 	Jwt func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
+	Log func(ctx context.Context, obj interface{}, next graphql.Resolver) (res interface{}, err error)
 }
 
 type ComplexityRoot struct {
@@ -451,7 +452,8 @@ type JWTResponse {
 `, BuiltIn: false},
 	{Name: "../../directive.graphqls", Input: `# Docs https://gqlgen.com/config/
 directive @goField(forceResolver: Boolean, name: String, omittable: Boolean) on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
-directive @jwt on INPUT_FIELD_DEFINITION | FIELD_DEFINITION`, BuiltIn: false},
+directive @jwt on INPUT_FIELD_DEFINITION | FIELD_DEFINITION
+directive @log on INPUT_FIELD_DEFINITION | FIELD_DEFINITION`, BuiltIn: false},
 	{Name: "../../init.graphqls", Input: `type Mutation {
   auth: AuthMutation! @goField(forceResolver: true)
 }
@@ -3769,8 +3771,6 @@ func (ec *executionContext) unmarshalInputGetListParams(ctx context.Context, obj
 		}
 		switch k {
 		case "limit":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("limit"))
 			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
@@ -3778,8 +3778,6 @@ func (ec *executionContext) unmarshalInputGetListParams(ctx context.Context, obj
 			}
 			it.Limit = data
 		case "page":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("page"))
 			data, err := ec.unmarshalNInt2int(ctx, v)
 			if err != nil {
@@ -3807,8 +3805,6 @@ func (ec *executionContext) unmarshalInputLoginParam(ctx context.Context, obj in
 		}
 		switch k {
 		case "email":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -3816,8 +3812,6 @@ func (ec *executionContext) unmarshalInputLoginParam(ctx context.Context, obj in
 			}
 			it.Email = data
 		case "password":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -3845,8 +3839,6 @@ func (ec *executionContext) unmarshalInputRegisterParam(ctx context.Context, obj
 		}
 		switch k {
 		case "name":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("name"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -3854,8 +3846,6 @@ func (ec *executionContext) unmarshalInputRegisterParam(ctx context.Context, obj
 			}
 			it.Name = data
 		case "email":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("email"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
@@ -3863,8 +3853,6 @@ func (ec *executionContext) unmarshalInputRegisterParam(ctx context.Context, obj
 			}
 			it.Email = data
 		case "password":
-			var err error
-
 			ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("password"))
 			data, err := ec.unmarshalNString2string(ctx, v)
 			if err != nil {
