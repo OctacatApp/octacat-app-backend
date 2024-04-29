@@ -1,6 +1,6 @@
 type AuthMutation {
-  register(param: RegisterParam!): User! @goField(forceResolver: true)
-  login(param: LoginParam!): JWTResponse! @goField(forceResolver: true)
+  register(param: RegisterParam!): User! @goField(forceResolver: true) @log
+  login(param: LoginParam!): JWTResponse! @goField(forceResolver: true) @log
 }
 
 input RegisterParam {

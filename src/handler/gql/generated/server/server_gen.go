@@ -430,8 +430,8 @@ func (ec *executionContext) introspectType(name string) (*introspection.Type, er
 
 var sources = []*ast.Source{
 	{Name: "../../auth.graphqls", Input: `type AuthMutation {
-  register(param: RegisterParam!): User! @goField(forceResolver: true)
-  login(param: LoginParam!): JWTResponse! @goField(forceResolver: true)
+  register(param: RegisterParam!): User! @goField(forceResolver: true) @log
+  login(param: LoginParam!): JWTResponse! @goField(forceResolver: true) @log
 }
 
 input RegisterParam {
@@ -468,7 +468,7 @@ type Query {
 # https://gqlgen.com/getting-started/
 
 type UserQuery {
-  getList(param: GetListParams!): UserPagination! @goField(forceResolver: true) @jwt
+  getList(param: GetListParams!): UserPagination! @goField(forceResolver: true) @jwt @log
 }
 
 type User {
@@ -617,8 +617,28 @@ func (ec *executionContext) _AuthMutation_register(ctx context.Context, field gr
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.AuthMutation().Register(rctx, obj, fc.Args["param"].(model.RegisterParam))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.AuthMutation().Register(rctx, obj, fc.Args["param"].(model.RegisterParam))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Log == nil {
+				return nil, errors.New("directive log is not implemented")
+			}
+			return ec.directives.Log(ctx, obj, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/generated/model.User`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -698,8 +718,28 @@ func (ec *executionContext) _AuthMutation_login(ctx context.Context, field graph
 		}
 	}()
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
-		ctx = rctx // use context from middleware stack in children
-		return ec.resolvers.AuthMutation().Login(rctx, obj, fc.Args["param"].(model.LoginParam))
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.AuthMutation().Login(rctx, obj, fc.Args["param"].(model.LoginParam))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Log == nil {
+				return nil, errors.New("directive log is not implemented")
+			}
+			return ec.directives.Log(ctx, obj, directive0)
+		}
+
+		tmp, err := directive1(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.JWTResponse); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/generated/model.JWTResponse`, tmp)
 	})
 	if err != nil {
 		ec.Error(ctx, err)
@@ -1919,8 +1959,14 @@ func (ec *executionContext) _UserQuery_getList(ctx context.Context, field graphq
 			}
 			return ec.directives.Jwt(ctx, obj, directive0)
 		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Log == nil {
+				return nil, errors.New("directive log is not implemented")
+			}
+			return ec.directives.Log(ctx, obj, directive1)
+		}
 
-		tmp, err := directive1(rctx)
+		tmp, err := directive2(rctx)
 		if err != nil {
 			return nil, graphql.ErrorOnPath(ctx, err)
 		}
