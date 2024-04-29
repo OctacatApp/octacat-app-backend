@@ -2,13 +2,15 @@ package user
 
 import (
 	"context"
-	"database/sql"
-	"errors"
 	"fmt"
 	"time"
 
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/irdaislakhuafa/go-argon2/argon2"
+	"github.com/irdaislakhuafa/go-sdk/appcontext"
+	"github.com/irdaislakhuafa/go-sdk/codes"
+	"github.com/irdaislakhuafa/go-sdk/convert"
+	"github.com/irdaislakhuafa/go-sdk/cryptography"
+	"github.com/irdaislakhuafa/go-sdk/errors"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/business/domain"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/business/generated/psql"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/entity"
@@ -40,22 +42,22 @@ func (u *user) Register(ctx context.Context, params psql.CreateUserParams) (psql
 	// check is email already exists? then return errror if true
 	_, err := u.domain.User.GetByEmail(ctx, params.Email)
 	if err != nil {
-		if !errors.Is(err, sql.ErrNoRows) {
-			return psql.User{}, errors.Join(errors.New("error while get user by email"), err)
+		if code := errors.GetCode(err); code.IsNotOneOf(codes.CodeSQLRecordDoesNotExist) {
+			return psql.User{}, errors.NewWithCode(codes.CodeBadRequest, "error while get user by email, %v", err)
 		}
 	} else {
-		return psql.User{}, errors.New("user with this email already exists")
+		return psql.User{}, errors.NewWithCode(codes.CodeBadRequest, "user with this email already exists")
 	}
 
 	// hash password with argon2
-	if params.Password, err = argon2.HashArgon2([]byte(params.Password)); err != nil {
-		return psql.User{}, errors.Join(errors.New("cannot hash password"), err)
+	if params.Password, err = cryptography.NewArgon2().Hash([]byte(params.Password)); err != nil {
+		return psql.User{}, errors.NewWithCode(errors.GetCode(err), "cannot hash password, %v", err)
 	}
 
 	// create user
 	user, err := u.domain.User.Create(ctx, params)
 	if err != nil {
-		return psql.User{}, errors.Join(errors.New("cannot create user"), err)
+		return psql.User{}, errors.NewWithCode(errors.GetCode(err), "cannot create user, %v", err)
 	}
 
 	return user, nil
@@ -63,26 +65,28 @@ func (u *user) Register(ctx context.Context, params psql.CreateUserParams) (psql
 
 func (u *user) Login(ctx context.Context, params psql.User) (tokens.JWTResponse, error) {
 	if params.Email == "" {
-		return tokens.JWTResponse{}, errors.New("parameter {email} is required")
+		return tokens.JWTResponse{}, errors.NewWithCode(codes.CodeBadRequest, "parameter {email} is required")
 	}
 	if params.Password == "" {
-		return tokens.JWTResponse{}, errors.New("parameter {password} is required")
+		return tokens.JWTResponse{}, errors.NewWithCode(codes.CodeBadRequest, "parameter {password} is required")
 	}
 
 	user, err := u.domain.User.GetByEmail(ctx, params.Email)
 	if err != nil {
-		if errors.Is(err, sql.ErrNoRows) {
-			return tokens.JWTResponse{}, errors.Join(errors.New("user with this email not registered"), err)
+		if code := errors.GetCode(err); code.IsOneOf(codes.CodeSQLRecordDoesNotExist) {
+			return tokens.JWTResponse{}, errors.NewWithCode(codes.CodeUnauthorized, "user with this email not registered, %v", err)
 		}
-		return tokens.JWTResponse{}, err
+		return tokens.JWTResponse{}, errors.NewWithCode(codes.CodeUnauthorized, err.Error())
 	}
 
-	if _, err := argon2.CompareArgon2(params.Password, user.Password); err != nil {
-		return tokens.JWTResponse{}, errors.Join(errors.New("password is not match"), err)
+	if _, err := cryptography.NewArgon2().Compare([]byte(params.Password), []byte(user.Password)); err != nil {
+		return tokens.JWTResponse{}, errors.NewWithCode(codes.CodeUnauthorized, "password is not match")
 	}
 
-	expAt := time.Now().Add(time.Minute * time.Duration(u.cfg.App.JWT.ExpInMinute))
-	issAt := time.Now()
+	now := appcontext.GetRequestStartTime(ctx)
+
+	expAt := now.Add(time.Minute * time.Duration(u.cfg.App.JWT.ExpInMinute))
+	issAt := now
 	claims := entity.Claims{
 		UserID: user.ID,
 		RegisteredClaims: jwt.RegisteredClaims{
@@ -93,13 +97,13 @@ func (u *user) Login(ctx context.Context, params psql.User) (tokens.JWTResponse,
 
 	tokenString, err := tokens.NewJWT(claims, []byte(u.cfg.App.JWT.Secret))
 	if err != nil {
-		return tokens.JWTResponse{}, err
+		return tokens.JWTResponse{}, errors.NewWithCode(codes.CodeInternalServerError, err.Error())
 	}
 
 	layout := "02/01/2006 15:04:05"
 	result := tokens.JWTResponse{
 		Message: fmt.Sprintf("token created at '%v' and will be expired at '%v'", issAt.Format(layout), expAt.Format(layout)),
-		Token:   *tokenString,
+		Token:   convert.ToSafeValue[string](tokenString),
 	}
 
 	return result, nil
@@ -107,12 +111,12 @@ func (u *user) Login(ctx context.Context, params psql.User) (tokens.JWTResponse,
 
 func (u *user) GetListWithPagination(ctx context.Context, params psql.GetListUserWithPaginationParams) ([]psql.User, error) {
 	if params.Limit <= 0 {
-		return nil, errors.New("minimum limit is once")
+		return nil, errors.NewWithCode(codes.CodeBadRequest, "minimum limit is once")
 	}
 	params.Offset = (params.Offset - 1) * params.Limit
 	results, err := u.domain.User.GetListWithPagination(ctx, params)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewWithCode(errors.GetCode(err), err.Error())
 	}
 
 	return results, nil
@@ -121,7 +125,7 @@ func (u *user) GetListWithPagination(ctx context.Context, params psql.GetListUse
 func (u *user) Count(ctx context.Context) (int64, error) {
 	result, err := u.domain.User.Count(ctx)
 	if err != nil {
-		return 0, err
+		return 0, errors.NewWithCode(errors.GetCode(err), err.Error())
 	}
 	return result, nil
 }
