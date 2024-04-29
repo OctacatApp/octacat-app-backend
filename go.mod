@@ -7,9 +7,9 @@ require (
 	github.com/go-playground/validator/v10 v10.15.5
 	github.com/golang-jwt/jwt/v5 v5.2.0
 	github.com/google/uuid v1.6.0
-	github.com/irdaislakhuafa/go-sdk v0.0.14
+	github.com/irdaislakhuafa/go-sdk v0.0.15
 	github.com/lib/pq v1.10.9
-	github.com/rs/zerolog v1.31.0
+	github.com/rs/zerolog v1.32.0
 	github.com/vektah/gqlparser/v2 v2.5.11
 	golang.org/x/net v0.22.0
 )
@@ -27,6 +27,6 @@ require (
 	github.com/mitchellh/mapstructure v1.5.0 // indirect
 	github.com/sosodev/duration v1.2.0 // indirect
 	golang.org/x/crypto v0.21.0 // indirect
-	golang.org/x/sys v0.18.0 // indirect
+	golang.org/x/sys v0.19.0 // indirect
 	golang.org/x/text v0.14.0 // indirect
 )
