@@ -93,6 +93,7 @@ type ComplexityRoot struct {
 	}
 
 	UserQuery struct {
+		GetByID func(childComplexity int, id string) int
 		GetList func(childComplexity int, param model.GetListParams) int
 	}
 }
@@ -110,6 +111,7 @@ type QueryResolver interface {
 }
 type UserQueryResolver interface {
 	GetList(ctx context.Context, obj *model.UserQuery, param model.GetListParams) (*model.UserPagination, error)
+	GetByID(ctx context.Context, obj *model.UserQuery, id string) (*model.User, error)
 }
 
 type executableSchema struct {
@@ -309,6 +311,18 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserPagination.TotalPage(childComplexity), true
 
+	case "UserQuery.getByID":
+		if e.complexity.UserQuery.GetByID == nil {
+			break
+		}
+
+		args, err := ec.field_UserQuery_getByID_args(context.TODO(), rawArgs)
+		if err != nil {
+			return 0, false
+		}
+
+		return e.complexity.UserQuery.GetByID(childComplexity, args["id"].(string)), true
+
 	case "UserQuery.getList":
 		if e.complexity.UserQuery.GetList == nil {
 			break
@@ -469,6 +483,7 @@ type Query {
 
 type UserQuery {
   getList(param: GetListParams!): UserPagination! @goField(forceResolver: true) @jwt @log
+  getByID(id: String!): User! @goField(forceResolver: true) @jwt @log
 }
 
 type User {
@@ -548,6 +563,21 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
+	return args, nil
+}
+
+func (ec *executionContext) field_UserQuery_getByID_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
+	var err error
+	args := map[string]interface{}{}
+	var arg0 string
+	if tmp, ok := rawArgs["id"]; ok {
+		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
+		arg0, err = ec.unmarshalNString2string(ctx, tmp)
+		if err != nil {
+			return nil, err
+		}
+	}
+	args["id"] = arg0
 	return args, nil
 }
 
@@ -1029,6 +1059,8 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 			switch field.Name {
 			case "getList":
 				return ec.fieldContext_UserQuery_getList(ctx, field)
+			case "getByID":
+				return ec.fieldContext_UserQuery_getByID(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UserQuery", field.Name)
 		},
@@ -2023,6 +2055,113 @@ func (ec *executionContext) fieldContext_UserQuery_getList(ctx context.Context, 
 	}()
 	ctx = graphql.WithFieldContext(ctx, fc)
 	if fc.Args, err = ec.field_UserQuery_getList_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
+		ec.Error(ctx, err)
+		return fc, err
+	}
+	return fc, nil
+}
+
+func (ec *executionContext) _UserQuery_getByID(ctx context.Context, field graphql.CollectedField, obj *model.UserQuery) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserQuery_getByID(ctx, field)
+	if err != nil {
+		return graphql.Null
+	}
+	ctx = graphql.WithFieldContext(ctx, fc)
+	defer func() {
+		if r := recover(); r != nil {
+			ec.Error(ctx, ec.Recover(ctx, r))
+			ret = graphql.Null
+		}
+	}()
+	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
+		directive0 := func(rctx context.Context) (interface{}, error) {
+			ctx = rctx // use context from middleware stack in children
+			return ec.resolvers.UserQuery().GetByID(rctx, obj, fc.Args["id"].(string))
+		}
+		directive1 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Jwt == nil {
+				return nil, errors.New("directive jwt is not implemented")
+			}
+			return ec.directives.Jwt(ctx, obj, directive0)
+		}
+		directive2 := func(ctx context.Context) (interface{}, error) {
+			if ec.directives.Log == nil {
+				return nil, errors.New("directive log is not implemented")
+			}
+			return ec.directives.Log(ctx, obj, directive1)
+		}
+
+		tmp, err := directive2(rctx)
+		if err != nil {
+			return nil, graphql.ErrorOnPath(ctx, err)
+		}
+		if tmp == nil {
+			return nil, nil
+		}
+		if data, ok := tmp.(*model.User); ok {
+			return data, nil
+		}
+		return nil, fmt.Errorf(`unexpected type %T from directive, should be *github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/generated/model.User`, tmp)
+	})
+	if err != nil {
+		ec.Error(ctx, err)
+		return graphql.Null
+	}
+	if resTmp == nil {
+		if !graphql.HasFieldError(ctx, fc) {
+			ec.Errorf(ctx, "must not be null")
+		}
+		return graphql.Null
+	}
+	res := resTmp.(*model.User)
+	fc.Result = res
+	return ec.marshalNUser2ᚖgithubᚗcomᚋirdaislakhuafaᚋoctacatᚑappᚑbackendᚋsrcᚋhandlerᚋgqlᚋgeneratedᚋmodelᚐUser(ctx, field.Selections, res)
+}
+
+func (ec *executionContext) fieldContext_UserQuery_getByID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+	fc = &graphql.FieldContext{
+		Object:     "UserQuery",
+		Field:      field,
+		IsMethod:   true,
+		IsResolver: true,
+		Child: func(ctx context.Context, field graphql.CollectedField) (*graphql.FieldContext, error) {
+			switch field.Name {
+			case "id":
+				return ec.fieldContext_User_id(ctx, field)
+			case "name":
+				return ec.fieldContext_User_name(ctx, field)
+			case "email":
+				return ec.fieldContext_User_email(ctx, field)
+			case "password":
+				return ec.fieldContext_User_password(ctx, field)
+			case "profileImage":
+				return ec.fieldContext_User_profileImage(ctx, field)
+			case "createdAt":
+				return ec.fieldContext_User_createdAt(ctx, field)
+			case "createdBy":
+				return ec.fieldContext_User_createdBy(ctx, field)
+			case "updatedAt":
+				return ec.fieldContext_User_updatedAt(ctx, field)
+			case "updatedBy":
+				return ec.fieldContext_User_updatedBy(ctx, field)
+			case "deletedAt":
+				return ec.fieldContext_User_deletedAt(ctx, field)
+			case "deletedBy":
+				return ec.fieldContext_User_deletedBy(ctx, field)
+			case "isDeleted":
+				return ec.fieldContext_User_isDeleted(ctx, field)
+			}
+			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
+		},
+	}
+	defer func() {
+		if r := recover(); r != nil {
+			err = ec.Recover(ctx, r)
+			ec.Error(ctx, err)
+		}
+	}()
+	ctx = graphql.WithFieldContext(ctx, fc)
+	if fc.Args, err = ec.field_UserQuery_getByID_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
 		ec.Error(ctx, err)
 		return fc, err
 	}
@@ -4383,6 +4522,42 @@ func (ec *executionContext) _UserQuery(ctx context.Context, sel ast.SelectionSet
 					}
 				}()
 				res = ec._UserQuery_getList(ctx, field, obj)
+				if res == graphql.Null {
+					atomic.AddUint32(&fs.Invalids, 1)
+				}
+				return res
+			}
+
+			if field.Deferrable != nil {
+				dfs, ok := deferred[field.Deferrable.Label]
+				di := 0
+				if ok {
+					dfs.AddField(field)
+					di = len(dfs.Values) - 1
+				} else {
+					dfs = graphql.NewFieldSet([]graphql.CollectedField{field})
+					deferred[field.Deferrable.Label] = dfs
+				}
+				dfs.Concurrently(di, func(ctx context.Context) graphql.Marshaler {
+					return innerFunc(ctx, dfs)
+				})
+
+				// don't run the out.Concurrently() call below
+				out.Values[i] = graphql.Null
+				continue
+			}
+
+			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
+		case "getByID":
+			field := field
+
+			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
+				defer func() {
+					if r := recover(); r != nil {
+						ec.Error(ctx, ec.Recover(ctx, r))
+					}
+				}()
+				res = ec._UserQuery_getByID(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}

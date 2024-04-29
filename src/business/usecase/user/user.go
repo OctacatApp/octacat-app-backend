@@ -23,6 +23,7 @@ type Interface interface {
 	Login(ctx context.Context, params psql.User) (tokens.JWTResponse, error)
 	GetListWithPagination(ctx context.Context, params psql.GetListUserWithPaginationParams) ([]psql.User, error)
 	Count(ctx context.Context) (int64, error)
+	GetByID(ctx context.Context, id string) (psql.User, error)
 }
 
 type user struct {
@@ -126,6 +127,14 @@ func (u *user) Count(ctx context.Context) (int64, error) {
 	result, err := u.domain.User.Count(ctx)
 	if err != nil {
 		return 0, errors.NewWithCode(errors.GetCode(err), err.Error())
+	}
+	return result, nil
+}
+
+func (u *user) GetByID(ctx context.Context, id string) (psql.User, error) {
+	result, err := u.domain.User.GetByID(ctx, id)
+	if err != nil {
+		return psql.User{}, errors.NewWithCode(codes.CodeBadRequest, err.Error())
 	}
 	return result, nil
 }
