@@ -1,20 +1,20 @@
 package gql
 
 import (
-	"log"
+	"context"
 	"net/http"
 
 	"github.com/99designs/gqlgen/graphql/handler"
 	"github.com/99designs/gqlgen/graphql/playground"
+	"github.com/irdaislakhuafa/go-sdk/log"
+	"github.com/irdaislakhuafa/go-sdk/strformat"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/business/usecase"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/directives"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/handler/gql/generated/server"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/config"
 )
 
-const defaultPort = "8080"
-
-func InitAndRun(cfg *config.AppConfig, uc *usecase.Usecase, serverMux *http.ServeMux) *http.ServeMux {
+func InitAndRun(ctx context.Context, cfg *config.AppConfig, uc *usecase.Usecase, serverMux *http.ServeMux, log log.Interface) *http.ServeMux {
 	srv := handler.NewDefaultServer(
 		server.NewExecutableSchema(
 			server.Config{
@@ -23,6 +23,7 @@ func InitAndRun(cfg *config.AppConfig, uc *usecase.Usecase, serverMux *http.Serv
 				},
 				Directives: server.DirectiveRoot{
 					Jwt: directives.JWTDirective,
+					Log: directives.LogDirective(log),
 				},
 			},
 		),
@@ -31,7 +32,7 @@ func InitAndRun(cfg *config.AppConfig, uc *usecase.Usecase, serverMux *http.Serv
 	serverMux.Handle("/", playground.Handler("GraphQL playground", "/query"))
 	serverMux.Handle("/query", CORSHandler(srv))
 
-	log.Printf("connect to http://localhost:%s/ for GraphQL playground", cfg.App.Router.GQL.Port)
+	log.Info(ctx, strformat.TmplWithoutErr("connect to http://localhost:{{.Port}}/ for GraphQL playground", cfg.App.Router.GQL))
 	return serverMux
 }
 

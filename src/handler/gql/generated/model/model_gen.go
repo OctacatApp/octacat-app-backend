@@ -22,6 +22,12 @@ type LoginParam struct {
 	Password string `json:"password"`
 }
 
+type Mutation struct {
+}
+
+type Query struct {
+}
+
 type RegisterParam struct {
 	Name     string `json:"name"`
 	Email    string `json:"email"`
