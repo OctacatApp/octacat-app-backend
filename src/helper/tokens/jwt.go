@@ -1,16 +1,17 @@
 package tokens
 
 import (
-	"errors"
 	"reflect"
 
 	"github.com/golang-jwt/jwt/v5"
+	"github.com/irdaislakhuafa/go-sdk/codes"
+	"github.com/irdaislakhuafa/go-sdk/errors"
 )
 
 var (
-	ErrClaimsNotPointer     = errors.New("claims must be a pointer")
-	ErrInvalidSigningMethod = errors.New("signing method is not valid")
-	ErrClaimsTypeNotEquals  = errors.New("claims type is not equals")
+	ErrClaimsNotPointer     = "claims must be a pointer"
+	ErrInvalidSigningMethod = "signing method is not valid"
+	ErrClaimsTypeNotEquals  = "claims type is not equals"
 )
 
 type JWTResponse struct {
@@ -22,7 +23,7 @@ func NewJWT[C jwt.Claims](claims C, secret []byte) (*string, error) {
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
 	tokenString, err := token.SignedString(secret)
 	if err != nil {
-		return nil, err
+		return nil, errors.NewWithCode(codes.CodeJWTSignedStringError, err.Error())
 	}
 
 	return &tokenString, nil
@@ -30,12 +31,12 @@ func NewJWT[C jwt.Claims](claims C, secret []byte) (*string, error) {
 
 func Validate[C jwt.Claims](tokenString string, secret []byte, claims C) (*jwt.Token, error) {
 	if t := reflect.TypeOf(claims); t.Kind() != reflect.Ptr {
-		return nil, ErrClaimsNotPointer
+		return nil, errors.NewWithCode(codes.CodeJWTInvalidClaimsType, ErrClaimsNotPointer)
 	}
 
 	keyFunc := func(t *jwt.Token) (interface{}, error) {
 		if _, isOk := t.Method.(*jwt.SigningMethodHMAC); !isOk {
-			return nil, ErrInvalidSigningMethod
+			return nil, errors.NewWithCode(codes.CodeJWTInvalidMethod, ErrInvalidSigningMethod)
 		}
 		return secret, nil
 	}
@@ -51,7 +52,7 @@ func Validate[C jwt.Claims](tokenString string, secret []byte, claims C) (*jwt.T
 func GetClaims[C jwt.Claims](token *jwt.Token) (C, error) {
 	claims, isOk := token.Claims.(C)
 	if !isOk {
-		return claims, ErrClaimsTypeNotEquals
+		return claims, errors.NewWithCode(codes.CodeJWTInvalidClaimsType, ErrClaimsTypeNotEquals)
 	}
 
 	return claims, nil
