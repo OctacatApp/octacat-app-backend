@@ -4,7 +4,7 @@
 
 type UserQuery {
   getList(param: GetListParams!): UserPagination! @goField(forceResolver: true) @jwt @log
-  getByID(id: String!): User! @goField(forceResolver: true) @jwt @log
+  me: User! @goField(forceResolver: true) @jwt @log
 }
 
 type User {

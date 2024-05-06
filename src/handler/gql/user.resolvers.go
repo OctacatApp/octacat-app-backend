@@ -37,9 +37,9 @@ func (r *userQueryResolver) GetList(ctx context.Context, obj *model.UserQuery, p
 	return &response, nil
 }
 
-// GetByID is the resolver for the getByID field.
-func (r *userQueryResolver) GetByID(ctx context.Context, obj *model.UserQuery, id string) (*model.User, error) {
-	result, err := r.Usecase.User.GetByID(ctx, id)
+// Me is the resolver for the me field.
+func (r *userQueryResolver) Me(ctx context.Context, obj *model.UserQuery) (*model.User, error) {
+	result, err := r.Usecase.User.Me(ctx)
 	if err != nil {
 		return nil, err
 	}

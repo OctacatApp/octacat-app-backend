@@ -15,6 +15,7 @@ import (
 	"github.com/irdaislakhuafa/octacat-app-backend/src/business/generated/psql"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/entity"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/config"
+	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/key"
 	"github.com/irdaislakhuafa/octacat-app-backend/src/helper/tokens"
 )
 
@@ -24,6 +25,7 @@ type Interface interface {
 	GetListWithPagination(ctx context.Context, params psql.GetListUserWithPaginationParams) ([]psql.User, error)
 	Count(ctx context.Context) (int64, error)
 	GetByID(ctx context.Context, id string) (psql.User, error)
+	Me(ctx context.Context) (psql.User, error)
 }
 
 type user struct {
@@ -136,5 +138,15 @@ func (u *user) GetByID(ctx context.Context, id string) (psql.User, error) {
 	if err != nil {
 		return psql.User{}, errors.NewWithCode(codes.CodeBadRequest, err.Error())
 	}
+	return result, nil
+}
+
+func (u *user) Me(ctx context.Context) (psql.User, error) {
+	claims := convert.ToSafeValue[entity.Claims](ctx.Value(key.KeyClaims))
+	result, err := u.domain.User.GetByID(ctx, claims.UserID)
+	if err != nil {
+		return psql.User{}, errors.NewWithCode(codes.CodeUnauthorized, err.Error())
+	}
+
 	return result, nil
 }
