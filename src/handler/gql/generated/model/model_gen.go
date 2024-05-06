@@ -59,5 +59,5 @@ type UserPagination struct {
 
 type UserQuery struct {
 	GetList *UserPagination `json:"getList"`
-	GetByID *User           `json:"getByID"`
+	Me      *User           `json:"me"`
 }

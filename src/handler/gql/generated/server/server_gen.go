@@ -93,8 +93,8 @@ type ComplexityRoot struct {
 	}
 
 	UserQuery struct {
-		GetByID func(childComplexity int, id string) int
 		GetList func(childComplexity int, param model.GetListParams) int
+		Me      func(childComplexity int) int
 	}
 }
 
@@ -111,7 +111,7 @@ type QueryResolver interface {
 }
 type UserQueryResolver interface {
 	GetList(ctx context.Context, obj *model.UserQuery, param model.GetListParams) (*model.UserPagination, error)
-	GetByID(ctx context.Context, obj *model.UserQuery, id string) (*model.User, error)
+	Me(ctx context.Context, obj *model.UserQuery) (*model.User, error)
 }
 
 type executableSchema struct {
@@ -311,18 +311,6 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 
 		return e.complexity.UserPagination.TotalPage(childComplexity), true
 
-	case "UserQuery.getByID":
-		if e.complexity.UserQuery.GetByID == nil {
-			break
-		}
-
-		args, err := ec.field_UserQuery_getByID_args(context.TODO(), rawArgs)
-		if err != nil {
-			return 0, false
-		}
-
-		return e.complexity.UserQuery.GetByID(childComplexity, args["id"].(string)), true
-
 	case "UserQuery.getList":
 		if e.complexity.UserQuery.GetList == nil {
 			break
@@ -334,6 +322,13 @@ func (e *executableSchema) Complexity(typeName, field string, childComplexity in
 		}
 
 		return e.complexity.UserQuery.GetList(childComplexity, args["param"].(model.GetListParams)), true
+
+	case "UserQuery.me":
+		if e.complexity.UserQuery.Me == nil {
+			break
+		}
+
+		return e.complexity.UserQuery.Me(childComplexity), true
 
 	}
 	return 0, false
@@ -483,7 +478,7 @@ type Query {
 
 type UserQuery {
   getList(param: GetListParams!): UserPagination! @goField(forceResolver: true) @jwt @log
-  getByID(id: String!): User! @goField(forceResolver: true) @jwt @log
+  me: User! @goField(forceResolver: true) @jwt @log
 }
 
 type User {
@@ -563,21 +558,6 @@ func (ec *executionContext) field_Query___type_args(ctx context.Context, rawArgs
 		}
 	}
 	args["name"] = arg0
-	return args, nil
-}
-
-func (ec *executionContext) field_UserQuery_getByID_args(ctx context.Context, rawArgs map[string]interface{}) (map[string]interface{}, error) {
-	var err error
-	args := map[string]interface{}{}
-	var arg0 string
-	if tmp, ok := rawArgs["id"]; ok {
-		ctx := graphql.WithPathContext(ctx, graphql.NewPathWithField("id"))
-		arg0, err = ec.unmarshalNString2string(ctx, tmp)
-		if err != nil {
-			return nil, err
-		}
-	}
-	args["id"] = arg0
 	return args, nil
 }
 
@@ -1059,8 +1039,8 @@ func (ec *executionContext) fieldContext_Query_user(ctx context.Context, field g
 			switch field.Name {
 			case "getList":
 				return ec.fieldContext_UserQuery_getList(ctx, field)
-			case "getByID":
-				return ec.fieldContext_UserQuery_getByID(ctx, field)
+			case "me":
+				return ec.fieldContext_UserQuery_me(ctx, field)
 			}
 			return nil, fmt.Errorf("no field named %q was found under type UserQuery", field.Name)
 		},
@@ -2061,8 +2041,8 @@ func (ec *executionContext) fieldContext_UserQuery_getList(ctx context.Context, 
 	return fc, nil
 }
 
-func (ec *executionContext) _UserQuery_getByID(ctx context.Context, field graphql.CollectedField, obj *model.UserQuery) (ret graphql.Marshaler) {
-	fc, err := ec.fieldContext_UserQuery_getByID(ctx, field)
+func (ec *executionContext) _UserQuery_me(ctx context.Context, field graphql.CollectedField, obj *model.UserQuery) (ret graphql.Marshaler) {
+	fc, err := ec.fieldContext_UserQuery_me(ctx, field)
 	if err != nil {
 		return graphql.Null
 	}
@@ -2076,7 +2056,7 @@ func (ec *executionContext) _UserQuery_getByID(ctx context.Context, field graphq
 	resTmp, err := ec.ResolverMiddleware(ctx, func(rctx context.Context) (interface{}, error) {
 		directive0 := func(rctx context.Context) (interface{}, error) {
 			ctx = rctx // use context from middleware stack in children
-			return ec.resolvers.UserQuery().GetByID(rctx, obj, fc.Args["id"].(string))
+			return ec.resolvers.UserQuery().Me(rctx, obj)
 		}
 		directive1 := func(ctx context.Context) (interface{}, error) {
 			if ec.directives.Jwt == nil {
@@ -2118,7 +2098,7 @@ func (ec *executionContext) _UserQuery_getByID(ctx context.Context, field graphq
 	return ec.marshalNUser2ᚖgithubᚗcomᚋirdaislakhuafaᚋoctacatᚑappᚑbackendᚋsrcᚋhandlerᚋgqlᚋgeneratedᚋmodelᚐUser(ctx, field.Selections, res)
 }
 
-func (ec *executionContext) fieldContext_UserQuery_getByID(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
+func (ec *executionContext) fieldContext_UserQuery_me(ctx context.Context, field graphql.CollectedField) (fc *graphql.FieldContext, err error) {
 	fc = &graphql.FieldContext{
 		Object:     "UserQuery",
 		Field:      field,
@@ -2153,17 +2133,6 @@ func (ec *executionContext) fieldContext_UserQuery_getByID(ctx context.Context, 
 			}
 			return nil, fmt.Errorf("no field named %q was found under type User", field.Name)
 		},
-	}
-	defer func() {
-		if r := recover(); r != nil {
-			err = ec.Recover(ctx, r)
-			ec.Error(ctx, err)
-		}
-	}()
-	ctx = graphql.WithFieldContext(ctx, fc)
-	if fc.Args, err = ec.field_UserQuery_getByID_args(ctx, field.ArgumentMap(ec.Variables)); err != nil {
-		ec.Error(ctx, err)
-		return fc, err
 	}
 	return fc, nil
 }
@@ -4548,7 +4517,7 @@ func (ec *executionContext) _UserQuery(ctx context.Context, sel ast.SelectionSet
 			}
 
 			out.Concurrently(i, func(ctx context.Context) graphql.Marshaler { return innerFunc(ctx, out) })
-		case "getByID":
+		case "me":
 			field := field
 
 			innerFunc := func(ctx context.Context, fs *graphql.FieldSet) (res graphql.Marshaler) {
@@ -4557,7 +4526,7 @@ func (ec *executionContext) _UserQuery(ctx context.Context, sel ast.SelectionSet
 						ec.Error(ctx, ec.Recover(ctx, r))
 					}
 				}()
-				res = ec._UserQuery_getByID(ctx, field, obj)
+				res = ec._UserQuery_me(ctx, field, obj)
 				if res == graphql.Null {
 					atomic.AddUint32(&fs.Invalids, 1)
 				}
